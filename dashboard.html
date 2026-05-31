@@ -173,7 +173,7 @@
                 <div class="form-group"><label>Last 4 Digits of SSN <span style="color:var(--error)">*</span></label><input type="text" id="enrollSsn" placeholder="XXXX" maxlength="4" required><div class="error-msg" id="errSsn"></div></div>
                 <div class="form-group"><label>Date of Birth <span style="color:var(--error)">*</span></label><input type="date" id="enrollDob" required><div class="error-msg" id="errDob"></div></div>
                 <div class="form-group"><label>Email Address <span style="color:var(--error)">*</span></label><input type="email" id="enrollEmail" placeholder="your@email.com" required><div class="error-msg" id="errEmail"></div></div>
-                <button class="btn btn-primary" onclick="verifyIdentity()"><i class="fas fa-shield-alt"></i> Verify Identity</button>
+                <button class="btn btn-primary" type="button" id="verifyIdentityBtn"><i class="fas fa-shield-alt"></i> Verify Identity</button>
                 <div class="auth-divider"><span>Already enrolled?</span></div>
                 <button class="btn btn-outline" style="width:100%;justify-content:center;padding:12px" onclick="showLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
             </div>
@@ -1521,6 +1521,10 @@
             msgs.scrollTop = msgs.scrollHeight;
         }); } catch(e) { console.warn('chat init:', e); }
         try { document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('chatSend').click(); }); } catch(e) { console.warn('chat input init:', e); }
+        try {
+          var btn = document.getElementById('verifyIdentityBtn');
+          if (btn) btn.addEventListener('click', function(e) { if (typeof window.verifyIdentity === 'function') window.verifyIdentity(); else alert('verifyIdentity not loaded yet'); });
+        } catch(e) {}
         try {
           var d = document.createElement('div');
           d.id = 'debugStatus';

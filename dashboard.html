@@ -654,13 +654,20 @@
             if (!dob) { showFieldError('errDob', 'Date of birth is required'); valid = false; } else { hideFieldError('errDob'); }
             if (!email || !email.includes('@')) { showFieldError('errEmail', 'Valid email is required'); valid = false; } else { hideFieldError('errEmail'); }
             if (!valid) return;
+            console.log('VERIFY: acct='+acct+' ssn='+ssn+' dob='+dob+' email='+email);
             var allCustomers = getAllCustomers();
+            console.log('VERIFY: total customers='+allCustomers.length);
+            allCustomers.forEach(function(c,i) { console.log('  ['+i+'] acct='+c.account+' ssn='+c.ssn+' dob='+c.dob+' email='+c.email); });
             var match = allCustomers.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email; });
             if (!match) {
+              console.log('VERIFY: no local match, trying Supabase...');
               if (typeof sb !== 'undefined') {
                 sb.list('customers').then(function(remote) {
+                  console.log('VERIFY: Supabase returned '+remote.length+' customers');
+                  remote.forEach(function(c,i) { console.log('  ['+i+'] acct='+c.account+' ssn='+c.ssn+' dob='+c.dob+' email='+c.email); });
                   var found = remote.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email; });
                   if (found) {
+                    console.log('VERIFY: found match in Supabase, proceeding...');
                     var local = JSON.parse(storage.get('emirs_customers') || '[]');
                     local.push(found);
                     storage.set('emirs_customers', JSON.stringify(local));
@@ -672,14 +679,16 @@
                     document.querySelectorAll('.step-dot')[0].classList.add('completed');
                     document.querySelectorAll('.step-dot')[1].classList.add('active');
                   } else {
-                    showToast('We could not verify your information. Check your details and try again.', 'error');
+                    console.log('VERIFY: no match in Supabase either');
+                    showToast('No match found. Check your details carefully.', 'error');
                   }
-                }).catch(function() { showToast('We could not verify your information.', 'error'); });
+                }).catch(function(e) { console.error('VERIFY: Supabase error', e); showToast('Verification server error.', 'error'); });
               } else {
                 showToast('We could not verify your information.', 'error');
               }
               return;
             }
+            console.log('VERIFY: local match found');
             for (let u in enrolledUsers) { if (enrolledUsers[u].account === acct) { showToast('Already enrolled. Please sign in.', 'warning'); return; } }
             verifiedCustomer = match;
             document.getElementById('verifySuccess').classList.add('show');

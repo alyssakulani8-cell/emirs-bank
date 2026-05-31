@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>document.documentElement.setAttribute('data-js','true');</script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,8 @@
     <link rel="icon" type="image/svg+xml" href="assets/emirs-logo.svg">
     <style>
         body { background: #f0f4f8; }
+        [data-js="true"] .no-js-warning { display: none; }
+        .no-js-warning { background: #dc2626; color: white; text-align: center; padding: 12px; font-size: 0.85rem; }
         [data-theme="dark"] body { background: var(--bg); }
         .customer-sidebar { background: linear-gradient(180deg, #0a1628 0%, #132244 100%); }
         .customer-sidebar .nav-item i { color: var(--accent); }
@@ -205,6 +208,7 @@
         </div>
     </div>
 
+    <div class="no-js-warning">JavaScript appears to be disabled. Please enable JavaScript to use online banking.</div>
     <div class="auth-screen" id="loginScreen" style="display:none">
         <div class="auth-box">
             <div class="logo" style="justify-content:center"><img src="assets/emirs-logo.svg" alt="Emirs Bank" style="height:50px;width:auto"></div>

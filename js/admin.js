@@ -655,41 +655,92 @@
     renderSubmissions();
   };
 
+  function getAllCustomers(callback) {
+    var local = JSON.parse(storage.get('emirs_customers') || '[]');
+    var all = local.map(function(c) { return { _source: 'local', _key: c.account || c.email, _name: c.name, _raw: c }; });
+
+    if (typeof sb === 'undefined') { if (callback) callback(all); return; }
+    sb.list('customers').then(function(remote) {
+      remote.forEach(function(r) {
+        var key = r.account || r.email || r.name;
+        if (!all.some(function(a) { return a._key === key; })) {
+          all.push({ _source: 'remote', _key: key, _name: r.name, _raw: r });
+        }
+      });
+      if (callback) callback(all);
+    }).catch(function() { if (callback) callback(all); });
+  }
+
+  var SAMPLE_STATUSES = ['active', 'active', 'active', 'active', 'frozen', 'active', 'active', 'active', 'active', 'suspended'];
+
   function renderUsers() {
     var tbody = document.getElementById('usersTableBody');
     if (!tbody) return;
     var q = (document.getElementById('userSearch')?.value || '').toLowerCase();
-    var filtered = q ? SAMPLE_USERS.filter(function(u) { return u.name.toLowerCase().includes(q) || u.email.includes(q); }) : SAMPLE_USERS;
-    tbody.innerHTML = filtered.map(function(u) {
-      var statusClass = u.status === 'active' ? 'badge-success' : u.status === 'frozen' ? 'badge-warning' : 'badge-danger';
-      return '<tr>' +
-        '<td><strong>' + u.name + '</strong></td>' +
-        '<td style="color:var(--text-secondary)">' + u.email + '</td>' +
-        '<td style="font-family:monospace">' + u.account + '</td>' +
-        '<td><strong>$' + u.balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</strong></td>' +
-        '<td><span class="badge ' + statusClass + '">' + u.status + '</span></td>' +
-        '<td><button class="btn btn-sm btn-ghost" onclick="viewCustomerDetail(\'' + u.name + '\')"><i class="fas fa-eye"></i></button></td></tr>';
-    }).join('');
+
+    getAllCustomers(function(customers) {
+      var toRender = customers.length ? customers : SAMPLE_USERS.map(function(u, i) {
+        return { _source: 'sample', _key: u.account, _name: u.name, _raw: u };
+      });
+      var filtered = q ? toRender.filter(function(u) {
+        return (u._name || '').toLowerCase().includes(q) || ((u._raw.email || '') + (u._raw.account || '')).toLowerCase().includes(q);
+      }) : toRender;
+
+      tbody.innerHTML = filtered.map(function(u, idx) {
+        var raw = u._raw;
+        var name = raw.name || raw.Name || 'Unknown';
+        var email = raw.email || raw.Email || '';
+        var accountNum = raw.account || (raw.accounts && raw.accounts[0] && raw.accounts[0].number) || raw.accountNumber || '';
+        var balance = 0;
+        if (raw.accounts && raw.accounts[0]) { balance = parseFloat(raw.accounts[0].balance) || 0; }
+        else if (typeof raw.balance === 'number') { balance = raw.balance; }
+        var status = raw.status || SAMPLE_STATUSES[idx % SAMPLE_STATUSES.length] || 'active';
+        var statusClass = status === 'active' ? 'badge-success' : status === 'frozen' ? 'badge-warning' : 'badge-danger';
+        return '<tr>' +
+          '<td><strong>' + name + '</strong></td>' +
+          '<td style="color:var(--text-secondary)">' + email + '</td>' +
+          '<td style="font-family:monospace">' + accountNum + '</td>' +
+          '<td><strong>$' + balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</strong></td>' +
+          '<td><span class="badge ' + statusClass + '">' + status + '</span></td>' +
+          '<td><button class="btn btn-sm btn-ghost" onclick="viewCustomerDetail(\'' + u._key.replace(/'/g, "\\'") + '\')"><i class="fas fa-eye"></i></button></td></tr>';
+      }).join('');
+    });
   }
 
   window.filterUsers = renderUsers;
   document.getElementById('userSearch')?.addEventListener('input', renderUsers);
 
-  window.viewCustomerDetail = function(name) {
-    var user = SAMPLE_USERS.find(function(u) { return u.name === name; });
-    if (!user) { showToast('User not found', 'error'); return; }
-    var body = document.getElementById('customerDetailBody');
-    if (body) {
-      body.innerHTML =
-        '<div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">' + user.name + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + user.email + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Account</span><span class="detail-value" style="font-family:monospace">' + user.account + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Balance</span><span class="detail-value">$' + user.balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-' + (user.status === 'active' ? 'success' : 'warning') + '">' + user.status + '</span></span></div>' +
-        '<div class="detail-row"><span class="detail-label">Member Since</span><span class="detail-value">January 2024</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Last Login</span><span class="detail-value">Today, 8:30 AM</span></div>';
-    }
-    document.getElementById('customerDetailModal')?.classList.add('active');
+  window.viewCustomerDetail = function(key) {
+    getAllCustomers(function(customers) {
+      var entry = customers.find(function(c) { return c._key === key; });
+      var raw = entry ? entry._raw : SAMPLE_USERS.find(function(u) { return u.account === key || u.name === key; });
+      if (!raw) { showToast('Customer not found', 'error'); return; }
+
+      var name = raw.name || raw.Name || 'Unknown';
+      var email = raw.email || raw.Email || 'N/A';
+      var accountNum = raw.account || (raw.accounts && raw.accounts[0] && raw.accounts[0].number) || raw.accountNumber || 'N/A';
+      var balance = 0;
+      if (raw.accounts && raw.accounts[0]) { balance = parseFloat(raw.accounts[0].balance) || 0; }
+      else if (typeof raw.balance === 'number') { balance = raw.balance; }
+      var ssn = raw.ssn || raw.SSN || 'N/A';
+      var dob = raw.dob || raw.DOB || raw.dateOfBirth || 'N/A';
+      var status = raw.status || 'active';
+
+      var body = document.getElementById('customerDetailBody');
+      if (body) {
+        body.innerHTML =
+          '<div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">' + name + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + email + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Account Number</span><span class="detail-value" style="font-family:monospace">' + accountNum + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Balance</span><span class="detail-value">$' + balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + ssn + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + dob + '</span></div>' +
+          '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-' + (status === 'active' ? 'success' : 'warning') + '">' + status + '</span></span></div>' +
+          (raw.accounts && raw.accounts.length > 1 ? '<div class="detail-row"><span class="detail-label">Other Accounts</span><span class="detail-value">' + raw.accounts.slice(1).map(function(a) { return a.number + ' ($' + (parseFloat(a.balance) || 0).toLocaleString() + ')'; }).join(', ') + '</span></div>' : '') +
+          '<div class="detail-row"><span class="detail-label">Approved On</span><span class="detail-value">' + new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</span></div>';
+      }
+      document.getElementById('customerDetailModal')?.classList.add('active');
+    });
   };
 
   window.showAddUser = function() { showToast('Add user feature coming soon', 'info'); };

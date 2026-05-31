@@ -4,6 +4,6 @@
   "description": "Emirs Bank - Modern Banking Website Demo",
   "scripts": {
     "build": "echo 'Static site - no build required'",
-    "start": "npx serve . -s -l $PORT"
+    "start": "npx serve . -l $PORT"
   }
 }

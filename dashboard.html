@@ -64,9 +64,23 @@
         .transfer-form .form-group { margin-bottom: 18px; }
         .transfer-form label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--primary); margin-bottom: 6px; }
         [data-theme="dark"] .transfer-form label { color: var(--text); }
-        .transfer-form input, .transfer-form select { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:0.9rem; font-family:var(--font); }
-        [data-theme="dark"] .transfer-form input, [data-theme="dark"] .transfer-form select { background:rgba(255,255,255,0.06); color:var(--text); }
-        .transfer-form input:focus, .transfer-form select:focus { outline:none; border-color:var(--accent); }
+        .transfer-form input, .transfer-form select, .transfer-form textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:0.9rem; font-family:var(--font); }
+        [data-theme="dark"] .transfer-form input, [data-theme="dark"] .transfer-form select, [data-theme="dark"] .transfer-form textarea { background:rgba(255,255,255,0.06); color:var(--text); }
+        .transfer-form input:focus, .transfer-form select:focus, .transfer-form textarea:focus { outline:none; border-color:var(--accent); }
+        .type-toggle { display:flex; gap:12px; margin-bottom:24px; }
+        .type-option { flex:1; padding:14px 16px; border:2px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; text-align:center; transition:var(--transition); font-size:0.85rem; font-weight:600; color:var(--text-secondary); background:var(--bg-card); }
+        .type-option i { font-size:1.1rem; margin-right:6px; }
+        .type-option:hover { border-color:var(--accent); }
+        .type-option.active { border-color:var(--accent); background:rgba(212,168,67,0.08); color:var(--accent-dark); }
+        [data-theme="dark"] .type-option { background:rgba(255,255,255,0.03); }
+        [data-theme="dark"] .type-option.active { background:rgba(212,168,67,0.12); }
+        .intl-field { display:none; }
+        .intl-field.show { display:block; }
+        .pin-modal-input { width:100%; text-align:center; font-size:2rem; letter-spacing:12px; font-weight:700; padding:16px; border:2px solid var(--border); border-radius:var(--radius-sm); font-family:monospace; }
+        .pin-modal-input:focus { border-color:var(--accent); outline:none; }
+        .pin-dots { display:flex; gap:12px; justify-content:center; margin:20px 0; }
+        .pin-dot { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); transition:var(--transition); }
+        .pin-dot.filled { background:var(--accent); border-color:var(--accent); }
         .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
         .insight-card { background: var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
         [data-theme="dark"] .insight-card { background: var(--bg-card); }
@@ -127,6 +141,7 @@
             .auth-box { padding: 32px 24px; }
             .enroll-features { grid-template-columns: 1fr; }
             .insight-grid { grid-template-columns: 1fr; }
+            .type-toggle { flex-direction:column; gap:8px; }
         }
         @media print {
             .modal-overlay { display: flex !important; background: white !important; }
@@ -169,6 +184,11 @@
                 <div class="form-group"><label>Choose a Username <span style="color:var(--error)">*</span></label><input type="text" id="newUsername" placeholder="e.g. john.smith" required><div class="error-msg" id="errUsername"></div></div>
                 <div class="form-group"><label>Password <span style="color:var(--error)">*</span></label><input type="password" id="newPassword" placeholder="At least 8 characters" required minlength="8"><div class="error-msg" id="errPassword"></div></div>
                 <div class="form-group"><label>Confirm Password <span style="color:var(--error)">*</span></label><input type="password" id="confirmPassword" placeholder="Re-enter password" required><div class="error-msg" id="errConfirm"></div></div>
+                <div class="form-group"><label>Create Transfer PIN <span style="color:var(--error)">*</span></label>
+                    <input type="password" id="transferPin" placeholder="4-digit PIN" maxlength="4" required pattern="[0-9]{4}" inputmode="numeric" style="letter-spacing:6px;font-weight:700;font-size:1.2rem">
+                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">You'll need this PIN to authorize transfers</div>
+                    <div class="error-msg" id="errTransferPin"></div>
+                </div>
                 <div style="display:flex;gap:12px">
                     <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="backToStep1()"><i class="fas fa-arrow-left"></i> Back</button>
                     <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="completeEnrollment()"><i class="fas fa-check"></i> Enroll</button>
@@ -281,19 +301,50 @@
                 <div class="page-view" id="cview-transfer">
                     <div class="card"><div class="card-header"><h3>Transfer Funds</h3></div><div class="card-body">
                         <form class="transfer-form" id="transferForm">
-                            <div class="form-group"><label>From</label><select id="fromAccount" required></select></div>
-                            <div class="form-group"><label>To</label>
-                                <select id="toAccountSelect" onchange="useBeneficiary(this.value)"><option value="">Select beneficiary or enter number below</option></select>
+                            <div class="type-toggle">
+                                <div class="type-option active" data-type="local" onclick="switchTransferType('local')">
+                                    <i class="fas fa-exchange-alt"></i> Local Transfer
+                                </div>
+                                <div class="type-option" data-type="international" onclick="switchTransferType('international')">
+                                    <i class="fas fa-globe"></i> International
+                                </div>
                             </div>
-                            <div class="form-group"><label>Or enter account number</label><input type="text" id="toAccount" placeholder="Enter recipient account number" oninput="lookupRecipient()"><div id="recipientName" style="font-size:0.82rem;margin-top:4px;min-height:20px"></div></div>
-                            <div class="form-group"><label>Amount</label><input type="number" id="transferAmount" min="0.01" step="0.01" placeholder="0.00" required></div>
-                            <div class="form-group"><label>Memo</label><input type="text" id="transferMemo" placeholder="e.g. Savings transfer"></div>
+                            <div class="form-group"><label>From</label><select id="fromAccount" required></select></div>
+                            <div id="localFields">
+                                <div class="form-group"><label>To</label>
+                                    <select id="toAccountSelect" onchange="useBeneficiary(this.value)"><option value="">Select beneficiary or enter number below</option></select>
+                                </div>
+                                <div class="form-group"><label>Or enter account number</label><input type="text" id="toAccount" placeholder="Enter recipient account number" oninput="lookupRecipient()"><div id="recipientName" style="font-size:0.82rem;margin-top:4px;min-height:20px"></div></div>
+                            </div>
+                            <div id="intlFields" style="display:none">
+                                <div class="form-group"><label>Recipient Full Name <span style="color:var(--error)">*</span></label><input type="text" id="intlRecipientName" placeholder="Full name as on bank account"></div>
+                                <div class="form-group"><label>Recipient IBAN <span style="color:var(--error)">*</span></label><input type="text" id="intlIban" placeholder="e.g. GB29NWBK60161331926819"></div>
+                                <div class="form-group"><label>SWIFT / BIC Code <span style="color:var(--error)">*</span></label><input type="text" id="intlSwift" placeholder="e.g. NWBKGB2L"></div>
+                                <div class="form-group"><label>Bank Name <span style="color:var(--error)">*</span></label><input type="text" id="intlBankName" placeholder="e.g. National Westminster Bank"></div>
+                                <div class="form-group"><label>Bank Address</label><input type="text" id="intlBankAddress" placeholder="Full address of the recipient's bank"></div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                                    <div class="form-group"><label>Country <span style="color:var(--error)">*</span></label>
+                                        <select id="intlCountry"><option value="">Select...</option><option value="US">United States</option><option value="GB">United Kingdom</option><option value="DE">Germany</option><option value="FR">France</option><option value="IT">Italy</option><option value="ES">Spain</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="JP">Japan</option><option value="NG">Nigeria</option><option value="GH">Ghana</option><option value="KE">Kenya</option><option value="ZA">South Africa</option><option value="BR">Brazil</option><option value="IN">India</option></select>
+                                    </div>
+                                    <div class="form-group"><label>Currency <span style="color:var(--error)">*</span></label>
+                                        <select id="intlCurrency"><option value="USD">USD - US Dollar</option><option value="EUR">EUR - Euro</option><option value="GBP">GBP - British Pound</option><option value="CAD">CAD - Canadian Dollar</option><option value="AUD">AUD - Australian Dollar</option><option value="JPY">JPY - Japanese Yen</option><option value="NGN">NGN - Nigerian Naira</option><option value="GHS">GHS - Ghanaian Cedi</option><option value="KES">KES - Kenyan Shilling</option><option value="ZAR">ZAR - South African Rand</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label>Purpose of Transfer</label>
+                                    <select id="intlPurpose"><option value="">Select purpose...</option><option value="Family Support">Family Support</option><option value="Business Payment">Business Payment</option><option value="Investment">Investment</option><option value="Education">Education</option><option value="Travel">Travel</option><option value="Savings">Savings</option><option value="Purchase">Purchase / Goods</option></select>
+                                </div>
+                                <div class="form-group"><label>Transfer Fee</label>
+                                    <select id="intlFeeOption"><option value="sender">Sender pays all fees (OUR)</option><option value="recipient">Recipient pays fees (BEN)</option><option value="shared">Split fees (SHA)</option></select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>Amount <span style="color:var(--error)">*</span></label><input type="number" id="transferAmount" min="0.01" step="0.01" placeholder="0.00" required></div>
+                            <div class="form-group"><label>Memo / Description</label><input type="text" id="transferMemo" placeholder="e.g. Savings transfer"></div>
                             <div class="form-group"><label>Type</label><select id="transferType"><option value="now">Send Now</option><option value="recurring">Set as Recurring</option></select></div>
                             <div id="recurringOptions" style="display:none">
                                 <div class="form-group"><label>Frequency</label><select id="recurringFreq"><option value="weekly">Weekly</option><option value="biweekly">Bi-Weekly</option><option value="monthly" selected>Monthly</option></select></div>
                                 <div class="form-group"><label>Number of payments</label><input type="number" id="recurringCount" value="12" min="1" max="365"></div>
                             </div>
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Transfer</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> Continue with PIN</button>
                         </form>
                     </div></div>
                 </div>
@@ -394,6 +445,29 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="pinModal" onclick="if(event.target===this)closePinModal()">
+        <div class="modal" style="max-width:400px;text-align:center;padding:40px 32px">
+            <button class="modal-close" onclick="closePinModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(212,168,67,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                <i class="fas fa-lock" style="font-size:1.5rem;color:var(--accent-dark)"></i>
+            </div>
+            <h3 style="font-size:1.2rem;color:var(--primary);margin-bottom:4px">Enter Transfer PIN</h3>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:20px">Authorize this transaction with your 4-digit PIN</p>
+            <div id="pinErrorMsg" style="color:var(--error);font-size:0.82rem;margin-bottom:12px;display:none"><i class="fas fa-exclamation-circle"></i> Incorrect PIN. Try again.</div>
+            <input type="password" id="pinInput" class="pin-modal-input" maxlength="4" inputmode="numeric" placeholder="• • • •" autocomplete="off">
+            <div class="pin-dots">
+                <div class="pin-dot" data-idx="0"></div>
+                <div class="pin-dot" data-idx="1"></div>
+                <div class="pin-dot" data-idx="2"></div>
+                <div class="pin-dot" data-idx="3"></div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:8px">
+                <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closePinModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex:1;justify-content:center" id="pinConfirmBtn" onclick="verifyPinAndSubmit()"><i class="fas fa-check"></i> Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="receiptModal" onclick="if(event.target===this)this.classList.remove('active')">
         <div class="modal" style="max-width:440px;padding:0;overflow:hidden">
             <button class="modal-close" onclick="document.getElementById('receiptModal').classList.remove('active')" style="position:absolute;top:16px;right:16px;z-index:10;background:none;border:none;font-size:1.2rem;color:var(--text-secondary);cursor:pointer" aria-label="Close receipt"><i class="fas fa-times"></i></button>
@@ -409,6 +483,10 @@
                     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
                         <span style="font-size:0.78rem;color:var(--text-secondary)">Reference</span>
                         <span id="receiptRef" style="font-size:0.82rem;font-weight:700;font-family:monospace;color:var(--primary)">---</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                        <span style="font-size:0.78rem;color:var(--text-secondary)">Transfer Type</span>
+                        <span id="receiptTransferType" style="font-size:0.82rem;font-weight:600;color:var(--primary)">---</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
                         <span style="font-size:0.78rem;color:var(--text-secondary)">From</span>
@@ -433,6 +511,12 @@
                 </div>
                 <div id="receiptMemo" style="font-size:0.8rem;color:var(--text-secondary);background:var(--bg);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;display:none">
                     <strong>Memo:</strong> <span id="receiptMemoText"></span>
+                </div>
+                <div id="receiptIntlDetails" style="font-size:0.8rem;color:var(--text-secondary);background:var(--bg);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;display:none">
+                    <strong>Beneficiary:</strong> <span id="receiptBeneficiary" style="color:var(--primary)"></span><br>
+                    <strong>SWIFT:</strong> <span id="receiptSwift" style="color:var(--primary)"></span><br>
+                    <strong>Bank:</strong> <span id="receiptBank" style="color:var(--primary)"></span><br>
+                    <strong>Country:</strong> <span id="receiptCountry" style="color:var(--primary)"></span> · <strong>Currency:</strong> <span id="receiptCurrency" style="color:var(--primary)"></span>
                 </div>
                 <div style="display:flex;gap:12px">
                     <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="document.getElementById('receiptModal').classList.remove('active')"><i class="fas fa-check"></i> Done</button>
@@ -502,6 +586,8 @@
         let currentUsername = '';
         let refreshInterval = null;
 
+        let transferType = 'local';
+
         const CATEGORIES = {
             'food': ['Whole Foods','Starbucks','Coffee','Restaurant','Dining','Campus Dining','Groceries'],
             'transport': ['Shell','Gas','Uber','Lyft','Transport'],
@@ -533,7 +619,6 @@
             populateTransferAccounts();
             renderInsights();
             renderStatements();
-            renderProfile();
         }
 
         function verifyIdentity() {
@@ -560,16 +645,18 @@
         }
 
         function completeEnrollment() {
-            const username = document.getElementById('newUsername').value.trim();
+            const username = document.getElementById('newUsername').value.trim().toLowerCase();
             const password = document.getElementById('newPassword').value;
             const confirm = document.getElementById('confirmPassword').value;
+            const transferPin = document.getElementById('transferPin').value;
             let valid = true;
             if (!username || username.length < 3) { showFieldError('errUsername', 'Username must be at least 3 characters'); valid = false; } else { hideFieldError('errUsername'); }
             if (!password || password.length < 8) { showFieldError('errPassword', 'Password must be at least 8 characters'); valid = false; } else { hideFieldError('errPassword'); }
             if (password !== confirm) { showFieldError('errConfirm', 'Passwords do not match'); valid = false; } else { hideFieldError('errConfirm'); }
+            if (!transferPin || transferPin.length !== 4 || !/^\d{4}$/.test(transferPin)) { showFieldError('errTransferPin', 'Enter a valid 4-digit PIN'); valid = false; } else { hideFieldError('errTransferPin'); }
             if (enrolledUsers[username]) { showFieldError('errUsername', 'Username already taken'); valid = false; }
             if (!valid) return;
-            enrolledUsers[username] = { password: password, account: verifiedCustomer.account };
+            enrolledUsers[username] = { password: password, account: verifiedCustomer.account, transferPin: transferPin };
             storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
             document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
             document.getElementById('enrollStep3').classList.add('active');
@@ -590,8 +677,7 @@
             e.preventDefault();
             const username = document.getElementById('loginUser').value.trim().toLowerCase();
             const password = document.getElementById('loginPass').value.trim();
-            if (username === 'emirs' && password === 'admin2026') { window.location.href = 'admin.html'; return; }
-            if (username === 'emirs') { showToast('Invalid username or password.', 'error'); return; }
+            if (username === 'emirs' && password === 'admin2026') { sessionStorage.setItem('emirs_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
             const user = enrolledUsers[username];
             if (!user || user.password !== password) { showToast('Invalid username or password.', 'error'); return; }
             const allCustomers = getAllCustomers();
@@ -828,7 +914,7 @@
 
         function renderRecentTxns() {
             const all = [...currentCustomer.transactions, ...getPendingTxns()];
-            all.sort((a,b) => new Date(b.date) - new Date(a.date));
+            all.sort((a,b) => txnSortValue(b) - txnSortValue(a));
             document.getElementById('recentTxnList').innerHTML = all.slice(0,5).length ? all.slice(0,5).map(t => txnRow(t)).join('') : '<div class="empty-state" style="padding:20px"><i class="fas fa-exchange-alt"></i><h3>No Transactions</h3></div>';
         }
 
@@ -874,7 +960,7 @@
             const csv = rows.map(r => r.join(',')).join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'transactions_export.csv'; a.click();
-            URL.revokeObjectURL(blob);
+            URL.revokeObjectURL(a.href);
             showToast('Transactions exported', 'success');
         }
 
@@ -891,18 +977,30 @@
         function showTransferReceipt(data) {
             document.getElementById('receiptTitle').textContent = data.isRecurring ? 'Recurring Transfer Scheduled' : 'Transfer Initiated';
             document.getElementById('receiptRef').textContent = data.ref;
+            document.getElementById('receiptTransferType').textContent = data.transferType === 'international' ? 'International' : 'Local';
             document.getElementById('receiptFrom').innerHTML = data.fromName + '<br><span style="font-size:0.7rem;font-weight:400;color:var(--text-secondary)">' + data.fromAccount + '</span>';
             document.getElementById('receiptTo').innerHTML = data.toName + '<br><span style="font-size:0.7rem;font-weight:400;color:var(--text-secondary)">' + data.toAccount + '</span>';
             document.getElementById('receiptAmount').textContent = '$' + data.amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             document.getElementById('receiptDate').textContent = data.date;
-            document.getElementById('receiptStatus').textContent = data.isRecurring ? 'Active' : 'Pending Approval';
-            document.getElementById('receiptStatus').style.color = data.isRecurring ? 'var(--success)' : 'var(--warning)';
+            document.getElementById('receiptStatus').textContent = data.isRecurring ? 'Active' : data.transferType === 'international' ? 'Awaiting SWIFT Processing' : 'Pending Approval';
+            document.getElementById('receiptStatus').style.color = data.isRecurring ? 'var(--success)' : data.transferType === 'international' ? 'var(--accent-dark)' : 'var(--warning)';
             const memoEl = document.getElementById('receiptMemo');
-            if (data.memo && data.memo !== 'Transfer') {
+            if (data.memo && data.memo !== 'Transfer' && data.memo !== 'International Transfer') {
                 memoEl.style.display = 'block';
                 document.getElementById('receiptMemoText').textContent = data.memo;
             } else {
                 memoEl.style.display = 'none';
+            }
+            const intlEl = document.getElementById('receiptIntlDetails');
+            if (data.transferType === 'international') {
+                intlEl.style.display = 'block';
+                document.getElementById('receiptBeneficiary').textContent = data.intlRecipientName;
+                document.getElementById('receiptSwift').textContent = data.intlSwift;
+                document.getElementById('receiptBank').textContent = data.intlBankName;
+                document.getElementById('receiptCountry').textContent = data.intlCountry;
+                document.getElementById('receiptCurrency').textContent = data.intlCurrency;
+            } else {
+                intlEl.style.display = 'none';
             }
             document.getElementById('receiptModal').classList.add('active');
         }
@@ -920,56 +1018,170 @@
             el.innerHTML = found ? '<span style="color:var(--success)"><i class="fas fa-check-circle"></i> ' + found.name + '</span>' : '<span style="color:var(--error)"><i class="fas fa-exclamation-circle"></i> Account not found</span>';
         }
 
+        function switchTransferType(type) {
+            transferType = type;
+            document.querySelectorAll('.type-option').forEach(function(el) { el.classList.toggle('active', el.dataset.type === type); });
+            document.getElementById('localFields').style.display = type === 'local' ? 'block' : 'none';
+            document.getElementById('intlFields').style.display = type === 'international' ? 'block' : 'none';
+        }
+
+        function closePinModal() { document.getElementById('pinModal').classList.remove('active'); document.getElementById('pinInput').value = ''; updatePinDots(); document.getElementById('pinErrorMsg').style.display = 'none'; pendingTransferData = null; }
+
+        function updatePinDots() {
+            var val = document.getElementById('pinInput').value;
+            document.querySelectorAll('.pin-dot').forEach(function(dot, i) { dot.classList.toggle('filled', i < val.length); });
+        }
+
+        document.getElementById('pinInput').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);
+            updatePinDots();
+            if (this.value.length === 4) { document.getElementById('pinConfirmBtn').focus(); }
+        });
+
+        document.getElementById('pinInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && this.value.length === 4) { verifyPinAndSubmit(); }
+        });
+
+        let pendingTransferData = null;
+
         document.getElementById('transferForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if (this.dataset.submitting === 'true') { showToast('Please wait...', 'info'); return; }
-            this.dataset.submitting = 'true';
-            const btn = this.querySelector('button[type="submit"]');
+            const fromId = document.getElementById('fromAccount').value;
+            const amt = parseFloat(document.getElementById('transferAmount').value);
+            const memo = document.getElementById('transferMemo').value || (transferType === 'international' ? 'International Transfer' : 'Transfer');
+            const type = document.getElementById('transferType').value;
+
+            if (!fromId) { showToast('Select a source account', 'error'); return; }
+            if (isNaN(amt) || amt <= 0) { showToast('Enter a valid amount greater than zero', 'error'); return; }
+            const fa = currentCustomer.accounts.find(a => a.id === fromId);
+            if (!fa || fa.balance < amt) { showToast('Insufficient funds', 'error'); return; }
+
+            if (transferType === 'local') {
+                const toAcct = document.getElementById('toAccount').value.trim();
+                if (!toAcct) { showToast('Enter a recipient account number', 'error'); return; }
+                if (toAcct === fa.number) { showToast('Cannot transfer to your own account', 'error'); return; }
+                loadApprovedCustomers();
+                const all = getAllCustomers();
+                const recipient = all.find(c => c.account === toAcct);
+                if (!recipient) { showToast('Recipient account not found', 'error'); return; }
+            } else {
+                const intlName = document.getElementById('intlRecipientName').value.trim();
+                const intlIban = document.getElementById('intlIban').value.trim();
+                const intlSwift = document.getElementById('intlSwift').value.trim();
+                const intlBank = document.getElementById('intlBankName').value.trim();
+                const intlCountry = document.getElementById('intlCountry').value;
+                const intlCurrency = document.getElementById('intlCurrency').value;
+                if (!intlName) { showToast('Enter recipient full name', 'error'); return; }
+                if (!intlIban) { showToast('Enter recipient IBAN', 'error'); return; }
+                if (!intlSwift) { showToast('Enter SWIFT/BIC code', 'error'); return; }
+                if (!intlBank) { showToast('Enter bank name', 'error'); return; }
+                if (!intlCountry) { showToast('Select country', 'error'); return; }
+                if (!intlCurrency) { showToast('Select currency', 'error'); return; }
+            }
+
+            if (transferType !== 'local' && type === 'recurring') { showToast('Recurring transfers are only available for local transfers', 'warning'); return; }
+
+            pendingTransferData = { fromId, amt, memo, type };
+            document.getElementById('pinInput').value = '';
+            updatePinDots();
+            document.getElementById('pinErrorMsg').style.display = 'none';
+            document.getElementById('pinModal').classList.add('active');
+            setTimeout(function() { document.getElementById('pinInput').focus(); }, 100);
+        });
+
+        function verifyPinAndSubmit() {
+            const pin = document.getElementById('pinInput').value;
+            const user = enrolledUsers[currentUsername];
+            if (!user || user.transferPin !== pin) {
+                document.getElementById('pinErrorMsg').style.display = 'block';
+                document.getElementById('pinInput').value = '';
+                updatePinDots();
+                document.getElementById('pinInput').focus();
+                return;
+            }
+            closePinModal();
+            executeTransfer();
+        }
+
+        function executeTransfer() {
+            const form = document.getElementById('transferForm');
+            form.dataset.submitting = 'true';
+            const btn = form.querySelector('button[type="submit"]');
             const origHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             btn.disabled = true;
-            const fromId = document.getElementById('fromAccount').value;
-            const toAcct = document.getElementById('toAccount').value.trim();
-            const amt = parseFloat(document.getElementById('transferAmount').value);
-            const memo = document.getElementById('transferMemo').value || 'Transfer';
-            const type = document.getElementById('transferType').value;
-            if (!toAcct) { btn.innerHTML = origHtml; btn.disabled = false; delete this.dataset.submitting; showToast('Enter a recipient account number', 'error'); return; }
-            if (isNaN(amt) || amt <= 0) { btn.innerHTML = origHtml; btn.disabled = false; delete this.dataset.submitting; showToast('Enter a valid amount greater than zero', 'error'); return; }
-            const fa = currentCustomer.accounts.find(a => a.id === fromId);
-            if (!fa || fa.balance < amt) { showToast('Insufficient funds', 'error'); return; }
-            if (toAcct === fa.number) { showToast('Cannot transfer to your own account', 'error'); return; }
-            loadApprovedCustomers();
-            const all = getAllCustomers();
-            const recipient = all.find(c => c.account === toAcct);
-            if (!recipient) { showToast('Recipient account not found', 'error'); return; }
 
-            const selectedFromAccount = currentCustomer.accounts.find(a => a.id === fromId);
-            const refId = type === 'recurring' ? 'REC-' + Date.now().toString(36).toUpperCase() : 'PND-' + Date.now().toString(36).toUpperCase();
+            const { fromId, amt, memo } = pendingTransferData;
+            const fa = currentCustomer.accounts.find(a => a.id === fromId);
+            const selectedFromAccount = fa;
+            const refId = 'TFR-' + Date.now().toString(36).toUpperCase();
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-            if (type === 'recurring') {
-                const freq = document.getElementById('recurringFreq').value;
-                const count = parseInt(document.getElementById('recurringCount').value) || 12;
-                let recurring = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
-                recurring.push({ id: refId, fromName: currentCustomer.name, fromAccount: selectedFromAccount.number, toName: recipient.name, toAccount: toAcct, amount: amt, memo, freq, count, date: new Date().toISOString() });
-                storage.set('emirs_recurring_' + currentUsername, JSON.stringify(recurring));
-                renderRecurring();
-            } else {
+
+            fa.balance -= amt;
+            currentCustomer.transactions.unshift({ desc: memo || (transferType === 'international' ? 'International Transfer' : 'Transfer'), type: 'debit', amount: amt, date: dateStr, icon: 'out' });
+            const allCustomers = JSON.parse(storage.get('emirs_customers') || '[]');
+            const custIdx = allCustomers.findIndex(c => c.account === currentCustomer.account);
+            if (custIdx >= 0) { allCustomers[custIdx] = currentCustomer; storage.set('emirs_customers', JSON.stringify(allCustomers)); }
+
+            if (transferType === 'local') {
+                const toAcct = document.getElementById('toAccount').value.trim();
+                const all = getAllCustomers();
+                const recipient = all.find(c => c.account === toAcct);
                 const pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
-                pending.push({ id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId, fromName: currentCustomer.name, toAccount: toAcct, toName: recipient.name, amount: amt, memo: memo, status: 'pending', date: new Date().toISOString() });
+                pending.push({ id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId, fromName: currentCustomer.name, toAccount: toAcct, toName: recipient.name, amount: amt, memo: memo, status: 'pending', date: new Date().toISOString(), transferType: 'local' });
                 storage.set('emirs_pending_transfers', JSON.stringify(pending));
+                showTransferReceipt({
+                    ref: refId, transferType: 'local',
+                    fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
+                    toName: recipient.name, toAccount: toAcct,
+                    amount: amt, memo: memo, date: dateStr, isRecurring: false
+                });
+            } else {
+                const intlName = document.getElementById('intlRecipientName').value.trim();
+                const intlIban = document.getElementById('intlIban').value.trim();
+                const intlSwift = document.getElementById('intlSwift').value.trim();
+                const intlBank = document.getElementById('intlBankName').value.trim();
+                const intlBankAddress = document.getElementById('intlBankAddress').value.trim();
+                const intlCountry = document.getElementById('intlCountry').value;
+                const intlCurrency = document.getElementById('intlCurrency').value;
+                const intlPurpose = document.getElementById('intlPurpose').value;
+                const intlFeeOption = document.getElementById('intlFeeOption').value;
+                const pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+                pending.push({
+                    id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId,
+                    fromName: currentCustomer.name, amount: amt, memo: memo,
+                    status: 'pending', date: new Date().toISOString(), transferType: 'international',
+                    intlRecipientName: intlName, intlIban: intlIban, intlSwift: intlSwift,
+                    intlBankName: intlBank, intlBankAddress: intlBankAddress,
+                    intlCountry: intlCountry, intlCurrency: intlCurrency,
+                    intlPurpose: intlPurpose, intlFeeOption: intlFeeOption
+                });
+                storage.set('emirs_pending_transfers', JSON.stringify(pending));
+                const countryNames = { US:'United States', GB:'United Kingdom', DE:'Germany', FR:'France', IT:'Italy', ES:'Spain', CA:'Canada', AU:'Australia', JP:'Japan', NG:'Nigeria', GH:'Ghana', KE:'Kenya', ZA:'South Africa', BR:'Brazil', IN:'India' };
+                showTransferReceipt({
+                    ref: refId, transferType: 'international',
+                    fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
+                    toName: intlName + ' (' + intlIban + ')', toAccount: intlSwift + ' · ' + intlBank,
+                    amount: amt, memo: memo, date: dateStr, isRecurring: false,
+                    intlRecipientName: intlName, intlSwift: intlSwift, intlBankName: intlBank,
+                    intlCountry: countryNames[intlCountry] || intlCountry, intlCurrency: intlCurrency
+                });
             }
-            showTransferReceipt({
-                ref: refId, fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
-                toName: recipient.name, toAccount: toAcct, amount: amt, memo: memo,
-                date: dateStr, isRecurring: type === 'recurring'
-            });
             renderAccounts(); renderRecentTxns(); renderFullTxns(); populateTransferAccounts();
-            this.reset(); document.getElementById('toAccount').value = ''; document.getElementById('recipientName').innerHTML = '';
+            form.reset();
+            document.getElementById('recipientName').innerHTML = '';
             document.getElementById('toAccountSelect').selectedIndex = 0;
             document.getElementById('recurringOptions').style.display = 'none';
-            btn.innerHTML = origHtml; btn.disabled = false; delete this.dataset.submitting;
-        });
+            if (document.getElementById('intlFields')) {
+                document.getElementById('intlFields').querySelectorAll('input, select, textarea').forEach(function(el) {
+                    if (el.type !== 'hidden') el.value = '';
+                });
+            }
+            btn.innerHTML = origHtml; btn.disabled = false; delete form.dataset.submitting;
+            pendingTransferData = null;
+        }
 
         document.getElementById('transferType').addEventListener('change', function() {
             document.getElementById('recurringOptions').style.display = this.value === 'recurring' ? 'block' : 'none';
@@ -1028,6 +1240,18 @@
                     <div><span style="font-size:0.75rem;color:var(--text-secondary)">Online Banking</span><p style="font-weight:600;color:var(--primary)">Active</p></div>
                 </div>
                 <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+                <h4 style="font-size:0.9rem;color:var(--primary);margin-bottom:16px">Transfer PIN</h4>
+                <div style="max-width:400px;margin-bottom:24px">
+                    <div style="display:flex;gap:12px;align-items:flex-end">
+                        <div class="form-group" style="flex:1;margin-bottom:0">
+                            <label>Change Transfer PIN</label>
+                            <input type="password" id="newTransferPin" placeholder="Enter new 4-digit PIN" maxlength="4" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:var(--font);letter-spacing:4px;font-weight:700">
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="updateTransferPin()"><i class="fas fa-save"></i> Update</button>
+                    </div>
+                    <div id="pinUpdateMsg" style="font-size:0.78rem;margin-top:4px;display:none"></div>
+                </div>
+                <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
                 <h4 style="font-size:0.9rem;color:var(--primary);margin-bottom:16px">Change Password</h4>
                 <form id="passwordChangeForm" style="max-width:400px">
                     <div class="form-group"><label>Current Password</label><input type="password" id="pwCurrent" required style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem"></div>
@@ -1054,6 +1278,24 @@
                     showToast('Password updated successfully', 'success');
                 });
             }
+        }
+
+        function updateTransferPin() {
+            const newPin = document.getElementById('newTransferPin').value;
+            const msgEl = document.getElementById('pinUpdateMsg');
+            if (!newPin || newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+                msgEl.style.display = 'block';
+                msgEl.style.color = 'var(--error)';
+                msgEl.textContent = 'Please enter a valid 4-digit PIN';
+                return;
+            }
+            enrolledUsers[currentUsername].transferPin = newPin;
+            storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+            msgEl.style.display = 'block';
+            msgEl.style.color = 'var(--success)';
+            msgEl.textContent = 'Transfer PIN updated successfully';
+            document.getElementById('newTransferPin').value = '';
+            setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
         }
 
         function toggleCustomerTheme() {

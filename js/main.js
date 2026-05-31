@@ -224,19 +224,19 @@
   function initChat() {
     var toggle = document.getElementById('chatToggle');
     var close = document.getElementById('chatClose');
-    var window = document.getElementById('chatWindow');
+    var chatWindow = document.getElementById('chatWindow');
     var send = document.getElementById('chatSend');
     var input = document.getElementById('chatInput');
     var msgs = document.getElementById('chatMessages');
-    if (!toggle || !window) return;
+    if (!toggle || !chatWindow) return;
 
     if (toggle) toggle.addEventListener('click', function() {
-      window.classList.toggle('open');
+      chatWindow.classList.toggle('open');
       var badge = this.querySelector('.badge');
       if (badge) badge.style.display = 'none';
     });
 
-    if (close) close.addEventListener('click', function() { window.classList.remove('open'); });
+    if (close) close.addEventListener('click', function() { chatWindow.classList.remove('open'); });
 
     if (send && input && msgs) {
       function sendMsg() {
@@ -329,9 +329,9 @@
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      var user = document.getElementById('username').value;
-      var pass = document.getElementById('password').value;
-      if (user === 'emirs' && pass === 'admin2026') { window.location.href = 'admin.html'; return; }
+      var user = document.getElementById('username').value.trim();
+      var pass = document.getElementById('password').value.trim();
+      if (user === 'emirs' && pass === 'admin2026') { sessionStorage.setItem('emirs_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
       var users = JSON.parse(storage.get('emirs_online_users') || '{}');
       if (users[user] && users[user].password === pass) { window.location.href = 'dashboard.html'; return; }
       showToast('Invalid username or password.', 'error');
@@ -557,7 +557,9 @@
         e.preventDefault();
         this.style.borderColor = '';
         if (e.dataTransfer.files.length && fileInput) {
-          fileInput.files = e.dataTransfer.files;
+          var dt = new DataTransfer();
+          Array.from(e.dataTransfer.files).forEach(function(f) { dt.items.add(f); });
+          fileInput.files = dt.files;
           showFilePreview(e.dataTransfer.files[0]);
         }
       });
@@ -574,21 +576,23 @@
     }
   }
 
+  function safeInit(fn) { try { fn(); } catch(e) { console.warn('Init error:', e); } }
+
   function init() {
-    initTheme();
-    initMobileMenu();
-    initNavbarScroll();
-    initMortgageCalculator();
-    initTestimonialCarousel();
-    initCounters();
-    initParticles();
-    initCookieConsent();
-    initChat();
-    initContactModal();
-    initLoginModal();
-    initNewsletter();
-    initSmoothScroll();
-    initApplyPage();
+    safeInit(initTheme);
+    safeInit(initMobileMenu);
+    safeInit(initNavbarScroll);
+    safeInit(initMortgageCalculator);
+    safeInit(initTestimonialCarousel);
+    safeInit(initCounters);
+    safeInit(initParticles);
+    safeInit(initCookieConsent);
+    safeInit(initChat);
+    safeInit(initContactModal);
+    safeInit(initLoginModal);
+    safeInit(initNewsletter);
+    safeInit(initSmoothScroll);
+    safeInit(initApplyPage);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

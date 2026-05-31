@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Emirs Bank</title>
+    <meta name="description" content="Learn about Emirs Bank's mission, history, leadership, and commitment to your financial peace of mind.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/svg+xml" href="assets/emirs-logo.svg">
+    <style>
+        body { background: var(--bg-secondary); padding-top: 100px; }
+        .page-hero { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); padding: 80px 24px; text-align: center; color: var(--text); }
+        .page-hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; }
+        .page-hero p { font-size: 1.15rem; color: var(--text-muted); max-width: 650px; margin: 0 auto; line-height: 1.8; }
+        .page-section { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+        .page-section h2 { font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+        [data-theme="dark"] .page-section h2 { color: var(--text); }
+        .page-section > p { color: var(--text-secondary); font-size: 1rem; line-height: 1.8; max-width: 800px; }
+        .values-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 40px; }
+        .value-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px 28px; text-align: center; transition: var(--transition); }
+        [data-theme="dark"] .value-card { background: var(--bg-card-light); }
+        .value-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .value-card i { font-size: 2.2rem; color: var(--accent-dark); width: 64px; height: 64px; background: rgba(212,168,67,0.1); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .value-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+        [data-theme="dark"] .value-card h3 { color: var(--text); }
+        .value-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; margin: 60px 0; text-align: center; }
+        .stat h3 { font-size: 2.4rem; font-weight: 800; color: var(--accent-dark); }
+        .stat p { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+        .team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; margin-top: 40px; }
+        .team-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; text-align: center; transition: var(--transition); }
+        [data-theme="dark"] .team-card { background: var(--bg-card-light); }
+        .team-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .team-card .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%); display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
+        .team-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
+        [data-theme="dark"] .team-card h3 { color: var(--text); }
+        .team-card .role { font-size: 0.82rem; color: var(--accent-dark); font-weight: 600; margin-top: 4px; }
+        .team-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-top: 12px; }
+        .milestone-timeline { position: relative; margin-top: 40px; padding-left: 40px; }
+        .milestone-timeline::before { content: ''; position: absolute; left: 16px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .milestone { position: relative; padding-bottom: 36px; }
+        .milestone:last-child { padding-bottom: 0; }
+        .milestone::before { content: ''; position: absolute; left: -24px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg-secondary); }
+        .milestone .year { font-size: 0.8rem; font-weight: 700; color: var(--accent-dark); text-transform: uppercase; letter-spacing: 1px; }
+        .milestone h3 { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin: 4px 0 6px; }
+        [data-theme="dark"] .milestone h3 { color: var(--text); }
+        .milestone p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+        @media (max-width: 768px) {
+            .page-hero h1 { font-size: 1.8rem; }
+            .values-grid, .team-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(2,1fr); gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#aboutMain" class="skip-link">Skip to main content</a>
+
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-top">
+                <div class="nav-brand">
+                    <a href="index.html" class="logo"><img src="assets/emirs-logo.svg" alt="Emirs Bank" style="height:40px;width:auto"></a>
+                </div>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
+                    <a href="tel:18003647726" class="btn btn-outline btn-sm"><i class="fas fa-phone-alt"></i> 1-800-EMIRS</a>
+                    <a href="dashboard.html" class="btn btn-outline btn-sm"><i class="fas fa-lock"></i> Online Banking</a>
+                    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="aboutMain">
+        <div class="page-hero">
+            <h1>About Emirs Bank</h1>
+            <p>Fiercely committed to your financial peace of mind. For over six decades, Emirs Bank has empowered individuals, families, and businesses to build, protect, and grow their financial futures.</p>
+        </div>
+
+        <div class="page-section">
+            <h2>Our Story</h2>
+            <p>Founded in 1962 in the heart of the Midwest, Emirs Bank began with a single branch and a simple belief: banking should serve people, not the other way around. From those humble beginnings, we have grown into a trusted financial institution serving over 500,000 customers across 40 states.</p>
+            <p style="margin-top:16px">Today, Emirs Bank combines the personalized service of a community bank with the technology and resources of a modern financial institution. Whether you're opening your first checking account, financing a home, or growing a business, we are here to guide you every step of the way.</p>
+
+            <div class="stats-row">
+                <div class="stat"><h3>$8.2B</h3><p>Assets Under Management</p></div>
+                <div class="stat"><h3>500K+</h3><p>Customers Served</p></div>
+                <div class="stat"><h3>60+</h3><p>Years of Service</p></div>
+                <div class="stat"><h3>40</h3><p>States Nationwide</p></div>
+            </div>
+        </div>
+
+        <div class="page-section" style="background:var(--bg-card);padding-top:80px;padding-bottom:80px">
+            <div class="page-section" style="max-width:1100px;margin:0 auto;padding:0 24px">
+                <h2>Our Mission & Values</h2>
+                <p>Everything we do is guided by a commitment to integrity, innovation, and community. These core values shape every decision we make and every relationship we build.</p>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <h3>Community First</h3>
+                        <p>We believe in investing in the communities we serve. From local small business lending to financial literacy programs, our commitment extends beyond the walls of our branches.</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Trust & Security</h3>
+                        <p>Your financial security is our highest priority. We employ industry-leading encryption, fraud detection, and security protocols to protect your information and assets.</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Innovation</h3>
+                        <p>We continuously invest in modern banking technology to provide you with seamless digital tools, intuitive mobile experiences, and innovative financial solutions.</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-users"></i>
+                        <h3>People-Centered</h3>
+                        <p>Every customer is a person, not a number. Our relationship-driven approach ensures you receive personalized attention and solutions tailored to your unique needs.</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-balance-scale"></i>
+                        <h3>Integrity</h3>
+                        <p>We conduct business with the highest ethical standards. Transparency, honesty, and accountability are the foundations of every interaction we have.</p>
+                    </div>
+                    <div class="value-card">
+                        <i class="fas fa-seedling"></i>
+                        <h3>Sustainability</h3>
+                        <p>We are committed to responsible banking practices that support environmental sustainability and promote positive social impact for generations to come.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-section">
+            <h2>Our Leadership</h2>
+            <p>Meet the experienced team guiding Emirs Bank into the future with vision, expertise, and an unwavering commitment to our customers.</p>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="avatar">AK</div>
+                    <h3>Alhaji K. Suleiman</h3>
+                    <div class="role">Chairman & CEO</div>
+                    <p>With over 30 years of banking leadership, Alhaji Suleiman has guided Emirs Bank through periods of remarkable growth while maintaining our community-focused values.</p>
+                </div>
+                <div class="team-card">
+                    <div class="avatar">SM</div>
+                    <h3>Sarah M. Thompson</h3>
+                    <div class="role">President & COO</div>
+                    <p>Sarah oversees day-to-day operations and strategic initiatives, bringing 25 years of experience in financial services operations and digital transformation.</p>
+                </div>
+                <div class="team-card">
+                    <div class="avatar">DJ</div>
+                    <h3>Dr. James O. Carter</h3>
+                    <div class="role">Chief Financial Officer</div>
+                    <p>Dr. Carter leads our financial strategy with deep expertise in risk management, investment strategy, and regulatory compliance acquired over two decades in the industry.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-section" style="background:var(--bg-card);padding-top:80px;padding-bottom:80px">
+            <div class="page-section" style="max-width:1100px;margin:0 auto;padding:0 24px">
+                <h2>Our Milestones</h2>
+                <p>Key moments in our journey to becoming one of the most trusted financial institutions in the nation.</p>
+                <div class="milestone-timeline">
+                    <div class="milestone">
+                        <div class="year">1962</div>
+                        <h3>Founded in Springfield, Illinois</h3>
+                        <p>Emirs Bank opened its first branch with a mission to provide personalized banking services to local families and businesses.</p>
+                    </div>
+                    <div class="milestone">
+                        <div class="year">1985</div>
+                        <h3>Expansion to 10 States</h3>
+                        <p>Through strategic growth and a commitment to exceptional service, Emirs Bank expanded its footprint across the Midwest and beyond.</p>
+                    </div>
+                    <div class="milestone">
+                        <div class="year">2002</div>
+                        <h3>Launched Online Banking</h3>
+                        <p>Emirs Bank introduced its first digital banking platform, giving customers 24/7 access to their accounts from anywhere.</p>
+                    </div>
+                    <div class="milestone">
+                        <div class="year">2014</div>
+                        <h3>Mobile Banking App</h3>
+                        <p>We launched our mobile banking application, allowing customers to deposit checks, transfer funds, and manage accounts from their smartphones.</p>
+                    </div>
+                    <div class="milestone">
+                        <div class="year">2024</div>
+                        <h3>Next-Gen Digital Experience</h3>
+                        <p>Emirs Bank unveiled a completely redesigned digital banking experience with enhanced security, AI-powered insights, and seamless cross-device synchronization.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-section" style="text-align:center;padding-bottom:100px">
+            <h2>Ready to Bank With Us?</h2>
+            <p style="margin:0 auto 32px">Join over 500,000 customers who trust Emirs Bank for their financial needs.</p>
+            <a href="apply.html" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Open an Account</a>
+            <a href="dashboard.html" class="btn btn-outline btn-lg" style="margin-left:12px"><i class="fas fa-lock"></i> Sign In</a>
+        </div>
+    </main>
+
+    <footer class="footer" id="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo"><img src="assets/emirs-logo.svg" alt="Emirs Bank" style="height:42px;width:auto"></a>
+                    <p>Fiercely committed to your financial peace of mind.</p>
+                    <div class="social-links">
+                        <a href="#" class="contact-trigger" data-subject="Social Media" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="contact-trigger" data-subject="Social Media" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="contact-trigger" data-subject="Social Media" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="contact-trigger" data-subject="Social Media" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="contact-trigger" data-subject="Social Media" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Solutions</h4>
+                        <a href="#" class="contact-trigger" data-subject="Personal Banking">Personal Banking</a>
+                        <a href="#" class="contact-trigger" data-subject="Business Banking">Business Banking</a>
+                        <a href="#" class="contact-trigger" data-subject="Mortgage Loans">Mortgage Loans</a>
+                        <a href="#" class="contact-trigger" data-subject="Credit Cards">Credit Cards</a>
+                        <a href="#" class="contact-trigger" data-subject="Investment Services">Investment Services</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Support</h4>
+                        <a href="#" class="contact-trigger">Contact Us</a>
+                        <a href="#" class="contact-trigger" data-subject="Customer Service">Customer Service</a>
+                        <a href="#" class="contact-trigger" data-subject="Lost or Stolen Card">Lost or Stolen Card</a>
+                        <a href="#" class="contact-trigger" data-subject="Branch Locator">Branch Locator</a>
+                        <a href="#" class="contact-trigger" data-subject="FAQs">FAQs</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Contact</h4>
+                        <a href="#" class="contact-trigger"><i class="fas fa-envelope"></i> Contact Us</a>
+                        <a href="mailto:contact@emirsbank.com"><i class="fas fa-envelope"></i> contact@emirsbank.com</a>
+                        <a href="#" class="contact-trigger" data-subject="Phone Banking"><i class="fas fa-phone-alt"></i> 1-800-EMIRS-BANK</a>
+                        <a href="#" class="contact-trigger" data-subject="Branch Locator"><i class="fas fa-map-marker-alt"></i> Find a Branch</a>
+                        <div class="footer-routing"><small>Routing Number</small><strong>061201754</strong></div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <a href="#" class="contact-trigger" data-subject="Privacy Policy">Privacy Policy</a>
+                    <a href="#" class="contact-trigger" data-subject="Terms of Use">Terms of Use</a>
+                    <a href="#" class="contact-trigger" data-subject="Accessibility">Accessibility</a>
+                </div>
+                <p>&copy; 2026 Emirs Bank. All rights reserved. Member FDIC. Equal Housing Lender.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="live-chat" aria-label="Live chat">
+        <button class="live-chat-toggle" id="chatToggle" aria-label="Open live chat">
+            <i class="fas fa-comment-dots"></i>
+            <span class="badge">1</span>
+        </button>
+        <div class="live-chat-window" id="chatWindow">
+            <div class="live-chat-header">
+                <h4><i class="fas fa-comment"></i> Emirs Bank Chat</h4>
+                <button id="chatClose" aria-label="Close chat"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="live-chat-messages" id="chatMessages">
+                <div class="chat-msg bot">Welcome to Emirs Bank! How can we help you today?</div>
+            </div>
+            <div class="live-chat-input">
+                <input type="text" id="chatInput" placeholder="Type your message..." aria-label="Chat message">
+                <button id="chatSend" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cookie-consent" id="cookieConsent" role="alert" aria-label="Cookie notice">
+        <p>We use cookies to enhance your experience. By continuing, you accept our <a href="#" class="contact-trigger" data-subject="Cookie Policy">Cookie Policy</a>.</p>
+        <div class="cookie-actions">
+            <button class="btn btn-outline btn-sm" id="cookieDecline">Decline</button>
+            <button class="btn btn-primary btn-sm" id="cookieAccept">Accept All</button>
+        </div>
+    </div>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

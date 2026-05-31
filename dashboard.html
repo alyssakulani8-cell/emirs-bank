@@ -603,7 +603,7 @@
             return 'other';
         }
 
-        function loadApprovedCustomers() { approvedCustomers = JSON.parse(storage.get('emirs_customers') || '[]'); }
+        function loadApprovedCustomers() { try { approvedCustomers = JSON.parse(storage.get('emirs_customers') || '[]'); } catch(e) { approvedCustomers = []; console.warn('loadApprovedCustomers error:', e); } }
         function getAllCustomers() { loadApprovedCustomers(); return [...CUSTOMER_DB, ...approvedCustomers]; }
 
         if (typeof sb !== 'undefined') {
@@ -644,58 +644,51 @@
         }
 
         function verifyIdentity() {
-            const acct = document.getElementById('enrollAccount').value.trim();
-            const ssn = document.getElementById('enrollSsn').value.trim();
-            const dob = document.getElementById('enrollDob').value;
-            const email = document.getElementById('enrollEmail').value.trim();
-            let valid = true;
-            if (!acct) { showFieldError('errAccount', 'Account number is required'); valid = false; } else { hideFieldError('errAccount'); }
-            if (!ssn || ssn.length !== 4) { showFieldError('errSsn', 'Enter the last 4 digits'); valid = false; } else { hideFieldError('errSsn'); }
-            if (!dob) { showFieldError('errDob', 'Date of birth is required'); valid = false; } else { hideFieldError('errDob'); }
-            if (!email || !email.includes('@')) { showFieldError('errEmail', 'Valid email is required'); valid = false; } else { hideFieldError('errEmail'); }
-            if (!valid) return;
-            console.log('VERIFY: acct='+acct+' ssn='+ssn+' dob='+dob+' email='+email);
-            var allCustomers = getAllCustomers();
-            console.log('VERIFY: total customers='+allCustomers.length);
-            allCustomers.forEach(function(c,i) { console.log('  ['+i+'] acct='+c.account+' ssn='+c.ssn+' dob='+c.dob+' email='+c.email); });
-            var match = allCustomers.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email; });
-            if (!match) {
-              console.log('VERIFY: no local match, trying Supabase...');
-              if (typeof sb !== 'undefined') {
-                sb.list('customers').then(function(remote) {
-                  console.log('VERIFY: Supabase returned '+remote.length+' customers');
-                  remote.forEach(function(c,i) { console.log('  ['+i+'] acct='+c.account+' ssn='+c.ssn+' dob='+c.dob+' email='+c.email); });
-                  var found = remote.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email; });
-                  if (found) {
-                    console.log('VERIFY: found match in Supabase, proceeding...');
-                    var local = JSON.parse(storage.get('emirs_customers') || '[]');
-                    local.push(found);
-                    storage.set('emirs_customers', JSON.stringify(local));
-                    loadApprovedCustomers();
-                    verifiedCustomer = found;
-                    document.getElementById('verifySuccess').classList.add('show');
-                    document.querySelectorAll('.auth-step').forEach(function(s) { s.classList.remove('active'); });
-                    document.getElementById('enrollStep2').classList.add('active');
-                    document.querySelectorAll('.step-dot')[0].classList.add('completed');
-                    document.querySelectorAll('.step-dot')[1].classList.add('active');
-                  } else {
-                    console.log('VERIFY: no match in Supabase either');
-                    showToast('No match found. Check your details carefully.', 'error');
-                  }
-                }).catch(function(e) { console.error('VERIFY: Supabase error', e); showToast('Verification server error.', 'error'); });
-              } else {
-                showToast('We could not verify your information.', 'error');
+            try {
+              const acct = document.getElementById('enrollAccount').value.trim();
+              const ssn = document.getElementById('enrollSsn').value.trim();
+              const dob = document.getElementById('enrollDob').value;
+              const email = document.getElementById('enrollEmail').value.trim();
+              let valid = true;
+              if (!acct) { showFieldError('errAccount', 'Account number is required'); valid = false; } else { hideFieldError('errAccount'); }
+              if (!ssn || ssn.length !== 4) { showFieldError('errSsn', 'Enter the last 4 digits'); valid = false; } else { hideFieldError('errSsn'); }
+              if (!dob) { showFieldError('errDob', 'Date of birth is required'); valid = false; } else { hideFieldError('errDob'); }
+              if (!email || !email.includes('@')) { showFieldError('errEmail', 'Valid email is required'); valid = false; } else { hideFieldError('errEmail'); }
+              if (!valid) return;
+              var allCustomers = getAllCustomers();
+              var match = allCustomers.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
+              if (!match) {
+                if (typeof sb !== 'undefined') {
+                  sb.list('customers').then(function(remote) {
+                    var found = remote.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
+                    if (found) {
+                      var local = JSON.parse(storage.get('emirs_customers') || '[]');
+                      local.push(found);
+                      storage.set('emirs_customers', JSON.stringify(local));
+                      loadApprovedCustomers();
+                      verifiedCustomer = found;
+                      document.getElementById('verifySuccess').classList.add('show');
+                      document.querySelectorAll('.auth-step').forEach(function(s) { s.classList.remove('active'); });
+                      document.getElementById('enrollStep2').classList.add('active');
+                      document.querySelectorAll('.step-dot')[0].classList.add('completed');
+                      document.querySelectorAll('.step-dot')[1].classList.add('active');
+                    } else {
+                      showToast('No match found. Check your account number, SSN, DOB and email are exactly correct.', 'error');
+                    }
+                  }).catch(function() { showToast('Verification service unavailable. Please try again.', 'error'); });
+                } else {
+                  showToast('We could not verify your information.', 'error');
+                }
+                return;
               }
-              return;
-            }
-            console.log('VERIFY: local match found');
-            for (let u in enrolledUsers) { if (enrolledUsers[u].account === acct) { showToast('Already enrolled. Please sign in.', 'warning'); return; } }
-            verifiedCustomer = match;
-            document.getElementById('verifySuccess').classList.add('show');
-            document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
-            document.getElementById('enrollStep2').classList.add('active');
-            document.querySelectorAll('.step-dot')[0].classList.add('completed');
-            document.querySelectorAll('.step-dot')[1].classList.add('active');
+              for (let u in enrolledUsers) { if (enrolledUsers[u].account === acct) { showToast('Already enrolled. Please sign in.', 'warning'); return; } }
+              verifiedCustomer = match;
+              document.getElementById('verifySuccess').classList.add('show');
+              document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+              document.getElementById('enrollStep2').classList.add('active');
+              document.querySelectorAll('.step-dot')[0].classList.add('completed');
+              document.querySelectorAll('.step-dot')[1].classList.add('active');
+            } catch(e) { console.error('verifyIdentity error:', e); showToast('An unexpected error occurred. Please try again.', 'error'); }
         }
 
         function completeEnrollment() {

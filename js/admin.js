@@ -446,6 +446,10 @@
     }
     html += '<div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">' + app.date + '</span></div>';
     html += '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge ' + (app.status === 'approved' ? 'badge-success' : app.status === 'rejected' ? 'badge-danger' : 'badge-warning') + '">' + app.status + '</span></span></div>';
+    var allocatedAcct = app.accountNumber || app.accountnumber;
+    if (allocatedAcct) {
+      html += '<div class="detail-row"><span class="detail-label">Account Number</span><span class="detail-value" style="font-family:monospace;color:var(--success);font-weight:700">' + allocatedAcct + '</span></div>';
+    }
     html += '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">';
 
     if (app.email) html += '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + app.email + '</span></div>';
@@ -531,6 +535,7 @@
       existingCusts.push(customer);
       storage.set('emirs_customers', JSON.stringify(existingCusts));
       if (typeof sb !== 'undefined') sb.insert('customers', customer).catch(function(e) { console.warn('Supabase customer insert failed:', e); });
+      app.accountNumber = accountNumber;
     }
 
     app.status = 'approved';

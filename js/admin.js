@@ -647,8 +647,9 @@
         '<div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">' + date + '</span></div>' +
         '<div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:8px"><p style="font-size:0.85rem;color:var(--primary);line-height:1.7">' + message + '</p></div>';
     }
-    document.getElementById('subDetailModal')?.dataset.subId = id;
-    document.getElementById('subDetailModal')?.classList.add('active');
+    var subModal = document.getElementById('subDetailModal');
+    if (subModal) subModal.dataset.subId = id;
+    if (subModal) subModal.classList.add('active');
   }
 
   window.markResponded = function() {

@@ -463,10 +463,10 @@
       html += '<div style="margin-top:12px">';
       html += '<label style="display:block;font-size:0.82rem;font-weight:600;color:var(--primary);margin-bottom:6px">Allocate Account Number</label>';
       html += '<div style="display:flex;gap:8px;align-items:center">';
-      html += '<input type="text" id="allocAccountNum" placeholder="e.g. ****7834 or generate" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:monospace">';
+      html += '<input type="text" id="allocAccountNum" placeholder="e.g. 10482917 or Generate" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:monospace">';
       html += '<button class="btn btn-sm btn-outline" onclick="generateAccountNumber()" style="white-space:nowrap"><i class="fas fa-sync"></i> Generate</button>';
       html += '</div>';
-      html += '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Enter a masked account number (e.g. ****4829) or click Generate</div>';
+      html += '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Enter an 8-digit account number or click Generate</div>';
       html += '</div>';
     }
 

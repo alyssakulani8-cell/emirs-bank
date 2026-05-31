@@ -351,7 +351,7 @@ ul { list-style: none; }
 
 .testimonials { padding: 100px 0; background: var(--bg-secondary); }
 .testimonial-carousel {
-  display: flex; gap: 24px; overflow: hidden; margin-bottom: 32px; position: relative;
+  display: flex; overflow: hidden; margin-bottom: 32px; position: relative;
 }
 .testimonial-card {
   min-width: 100%; background: var(--bg-card); border: 1px solid var(--border);
@@ -370,6 +370,33 @@ ul { list-style: none; }
   border: none; cursor: pointer; transition: var(--transition); padding: 0;
 }
 .testimonial-dot.active { background: var(--accent); width: 28px; border-radius: 5px; }
+
+.badge-coming-soon {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--bg-secondary) !important; color: var(--text-secondary) !important;
+  cursor: default !important; pointer-events: none !important;
+}
+.coming-soon-tag {
+  display: inline-block; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--accent); background: rgba(42,107,158,0.1);
+  padding: 2px 6px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+}
+.badge-coming-soon { display: inline-flex; align-items: center; gap: 4px; }
+
+.team-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;
+}
+.team-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 36px 24px; text-align: center;
+  transition: var(--transition);
+}
+.team-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.team-photo { width: 80px; height: 80px; margin: 0 auto 16px; }
+.team-photo svg { width: 100%; height: 100%; }
+.team-card h3 { font-size: 1rem; margin-bottom: 4px; }
+.team-role { display: block; font-size: 0.8rem; color: var(--accent); margin-bottom: 12px; font-weight: 500; }
+.team-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
 
 .blog { padding: 100px 0; background: var(--bg); }
 .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }

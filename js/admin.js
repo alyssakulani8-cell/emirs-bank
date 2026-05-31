@@ -411,25 +411,18 @@
     var localStorageApps = JSON.parse(storage.get('emirs_applications') || '[]');
     var sampleApp = SAMPLE_APPLICATIONS.find(function(a) { return a.id === id; });
     var localApp = localStorageApps.find(function(a) { return a.id === id; });
-    if (sampleApp) {
-      showAppDetailInModal(sampleApp, false);
-      return;
-    }
-    if (localApp) {
-      showAppDetailInModal(localApp, true);
-      return;
-    }
+    var isSample = !!sampleApp;
+    if (sampleApp) { showAppDetailInModal(sampleApp, !isSample); return; }
+    if (localApp) { showAppDetailInModal(localApp, true); return; }
     if (typeof sb !== 'undefined') {
       sb.getById('applications', 'id', id).then(function(remoteApp) {
-        if (remoteApp) { showAppDetailInModal(remoteApp, false); }
+        if (remoteApp) { showAppDetailInModal(remoteApp, true); }
         else { showToast('Application not found', 'error'); }
       }).catch(function() { showToast('Application not found', 'error'); });
-    } else {
-      showToast('Application not found', 'error');
-    }
+    } else { showToast('Application not found', 'error'); }
   };
 
-  function showAppDetailInModal(app, isLocalApp) {
+  function showAppDetailInModal(app, showActions) {
     var modal = document.getElementById('appDetailModal');
     var body = document.getElementById('appDetailBody');
     var footer = document.getElementById('appDetailFooter');
@@ -461,7 +454,7 @@
     if (app.ssn) html += '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + app.ssn + '</span></div>';
     if (idType && idNumber) html += '<div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">' + idType + ' — ' + idNumber + '</span></div>';
 
-    if (isPending && isAccountType && isLocalApp) {
+    if (isPending && isAccountType && showActions) {
       html += '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">';
       html += '<div style="margin-top:12px">';
       html += '<label style="display:block;font-size:0.82rem;font-weight:600;color:var(--primary);margin-bottom:6px">Allocate Account Number</label>';
@@ -475,8 +468,9 @@
 
     body.innerHTML = html;
     modal.dataset.appId = app.id;
+    modal.dataset.appData = JSON.stringify(app);
 
-    if (isPending && isLocalApp) {
+    if (isPending && showActions) {
       footer.style.display = 'flex';
     } else {
       footer.style.display = 'none';
@@ -492,17 +486,8 @@
 
   window.approveApplication = function() {
     var modal = document.getElementById('appDetailModal');
-    var id = modal.dataset.appId;
-    if (!id) { showToast('No application selected', 'error'); return; }
-
-    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
-    var idx = localApps.findIndex(function(a) { return a.id === id; });
-    var app;
-    if (idx !== -1) {
-      app = localApps[idx];
-    } else {
-      showToast('Application not found', 'error'); return;
-    }
+    var app = JSON.parse(modal.dataset.appData || 'null');
+    if (!app || !app.id) { showToast('No application selected', 'error'); return; }
     if (app.status !== 'pending') { showToast('Application already ' + app.status, 'warning'); return; }
 
     var isAccountType = app.type === 'account' || app.type === 'Account Opening' || app.type.indexOf('Account') !== -1;
@@ -513,7 +498,7 @@
       if (!accountNumber) { showToast('Please allocate an account number or click Generate', 'error'); return; }
       if (accountNumber.length < 4) { showToast('Account number must be at least 4 characters', 'error'); return; }
 
-      var existing = JSON.parse(storage.get('emirs_customers') || '[]');
+      var existingCusts = JSON.parse(storage.get('emirs_customers') || '[]');
       var initials = app.name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase() || 'NA';
       var deposit = parseFloat(app.initialDeposit || app.initialdeposit) || 0;
 
@@ -543,15 +528,18 @@
         });
       }
 
-      existing.push(customer);
-      storage.set('emirs_customers', JSON.stringify(existing));
+      existingCusts.push(customer);
+      storage.set('emirs_customers', JSON.stringify(existingCusts));
       if (typeof sb !== 'undefined') sb.insert('customers', customer).catch(function(e) { console.warn('Supabase customer insert failed:', e); });
     }
 
     app.status = 'approved';
-    localApps[idx] = app;
+    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var idx = localApps.findIndex(function(a) { return a.id === app.id; });
+    if (idx !== -1) { localApps[idx] = app; }
+    else { localApps.push(app); }
     storage.set('emirs_applications', JSON.stringify(localApps));
-    if (typeof sb !== 'undefined') sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase update failed:', e); });
+    if (typeof sb !== 'undefined') sb.update('applications', 'id', app.id, { status: 'approved' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
     renderApplications();
@@ -564,20 +552,17 @@
 
   window.rejectApplication = function() {
     var modal = document.getElementById('appDetailModal');
-    var id = modal.dataset.appId;
-    if (!id) { showToast('No application selected', 'error'); return; }
-
-    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
-    var idx = localApps.findIndex(function(a) { return a.id === id; });
-    if (idx === -1) { showToast('Application not found', 'error'); return; }
-
-    var app = localApps[idx];
+    var app = JSON.parse(modal.dataset.appData || 'null');
+    if (!app || !app.id) { showToast('No application selected', 'error'); return; }
     if (app.status !== 'pending') { showToast('Application already ' + app.status, 'warning'); return; }
 
     app.status = 'rejected';
-    localApps[idx] = app;
+    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var idx = localApps.findIndex(function(a) { return a.id === app.id; });
+    if (idx !== -1) { localApps[idx] = app; }
+    else { localApps.push(app); }
     storage.set('emirs_applications', JSON.stringify(localApps));
-    if (typeof sb !== 'undefined') sb.update('applications', 'id', id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase update failed:', e); });
+    if (typeof sb !== 'undefined') sb.update('applications', 'id', app.id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
     renderApplications();

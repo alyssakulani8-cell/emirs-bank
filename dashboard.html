@@ -539,6 +539,7 @@
         </div>
     </div>
 
+    <script src="js/supabase.js"></script>
     <script>
         var storage = { get: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }, set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }, remove: function(k) { try { localStorage.removeItem(k); } catch(e) {} } };
         const CUSTOMER_DB = [
@@ -605,6 +606,22 @@
         function loadApprovedCustomers() { approvedCustomers = JSON.parse(storage.get('emirs_customers') || '[]'); }
         function getAllCustomers() { loadApprovedCustomers(); return [...CUSTOMER_DB, ...approvedCustomers]; }
 
+        sb.list('customers').then(function(remote) {
+          var local = JSON.parse(storage.get('emirs_customers') || '[]');
+          var ids = {};
+          local.forEach(function(c) { ids[c.account] = true; });
+          remote.forEach(function(c) { if (!ids[c.account]) { local.push(c); ids[c.account] = true; } });
+          storage.set('emirs_customers', JSON.stringify(local));
+          loadApprovedCustomers();
+        }).catch(function(e) { console.warn('Supabase customer sync failed:', e); });
+
+        sb.list('enrolled_users').then(function(remote) {
+          var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+          remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferPin }; } });
+          storage.set('emirs_online_users', JSON.stringify(local));
+          enrolledUsers = local;
+        }).catch(function(e) { console.warn('Supabase enrolled_users sync failed:', e); });
+
         function refreshCustomerData() {
             if (!currentCustomer || !currentUsername) return;
             const customers = JSON.parse(storage.get('emirs_customers') || '[]');
@@ -658,6 +675,7 @@
             if (!valid) return;
             enrolledUsers[username] = { password: password, account: verifiedCustomer.account, transferPin: transferPin };
             storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+            sb.upsert('enrolled_users', { username: username, password: password, account: verifiedCustomer.account, transferPin: transferPin }, 'username').catch(function(e) { console.warn('Supabase sync failed:', e); });
             document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
             document.getElementById('enrollStep3').classList.add('active');
             document.querySelectorAll('.step-dot')[1].classList.add('completed');
@@ -678,8 +696,22 @@
             const username = document.getElementById('loginUser').value.trim().toLowerCase();
             const password = document.getElementById('loginPass').value.trim();
             if (username === 'emirs' && password === 'admin2026') { sessionStorage.setItem('emirs_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
-            const user = enrolledUsers[username];
-            if (!user || user.password !== password) { showToast('Invalid username or password.', 'error'); return; }
+            var user = enrolledUsers[username];
+            if (!user || user.password !== password) {
+              sb.list('enrolled_users').then(function(rows) {
+                var found = rows.find(function(u) { return u.username === username && u.password === password; });
+                if (found) {
+                  enrolledUsers[username] = { password: found.password, account: found.account, transferPin: found.transferPin };
+                  storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+                  loginWithUser(found);
+                } else {
+                  showToast('Invalid username or password.', 'error');
+                }
+              }).catch(function() { showToast('Invalid username or password.', 'error'); });
+              return;
+            }
+            loginWithUser(user);
+            function loginWithUser(user) {
             const allCustomers = getAllCustomers();
             currentCustomer = allCustomers.find(c => c.account === user.account);
             if (!currentCustomer) { showToast('Account not found.', 'error'); return; }
@@ -712,7 +744,21 @@
         let cardStatus = {};
 
         function initDashboard() {
-            refreshCustomerData();
+            sb.list('customers').then(function(remote) {
+              var local = JSON.parse(storage.get('emirs_customers') || '[]');
+              var ids = {};
+              local.forEach(function(c) { ids[c.account] = true; });
+              remote.forEach(function(c) { if (!ids[c.account]) { local.push(c); ids[c.account] = true; } });
+              storage.set('emirs_customers', JSON.stringify(local));
+              loadApprovedCustomers();
+              refreshCustomerData();
+            }).catch(function() { refreshCustomerData(); });
+            sb.list('enrolled_users').then(function(remote) {
+              var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+              remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferPin }; } });
+              storage.set('emirs_online_users', JSON.stringify(local));
+              enrolledUsers = local;
+            }).catch(function() {});
             const h = new Date().getHours();
             document.getElementById('welcomeMsg').textContent = (h<12?'Good morning':h<18?'Good afternoon':'Good evening') + ', ' + currentCustomer.name.split(' ')[0] + '!';
             document.getElementById('userNameDisplay').textContent = currentCustomer.name;
@@ -1291,6 +1337,7 @@
             }
             enrolledUsers[currentUsername].transferPin = newPin;
             storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+            sb.update('enrolled_users', 'username', currentUsername, { transferPin: newPin }).catch(function(e) { console.warn('Supabase PIN sync failed:', e); });
             msgEl.style.display = 'block';
             msgEl.style.color = 'var(--success)';
             msgEl.textContent = 'Transfer PIN updated successfully';

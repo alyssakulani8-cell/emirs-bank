@@ -362,7 +362,24 @@
     var filter = document.getElementById('appFilter')?.value || 'all';
     var type = document.getElementById('appType')?.value || 'all';
     var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
-    var allApps = SAMPLE_APPLICATIONS.concat(localApps.map(function(a) { return { id: a.id, name: a.name, type: 'account', product: a.product || a.accountType, amount: null, status: a.status, date: a.date, email: a.email, phone: a.phone }; }));
+
+    sb.list('applications').then(function(remoteApps) {
+      var merged = mergeAppArrays(localApps, remoteApps);
+      renderAppList(container, merged, filter, type);
+    }).catch(function() {
+      renderAppList(container, localApps, filter, type);
+    });
+  }
+
+  function mergeAppArrays(local, remote) {
+    var map = {};
+    local.forEach(function(a) { map[a.id] = a; });
+    remote.forEach(function(a) { if (!map[a.id]) map[a.id] = a; });
+    return Object.keys(map).map(function(k) { return map[k]; });
+  }
+
+  function renderAppList(container, apps, filter, type) {
+    var allApps = SAMPLE_APPLICATIONS.concat(apps.map(function(a) { return { id: a.id, name: a.name, type: 'account', product: a.product || a.accountType, amount: null, status: a.status, date: a.date, email: a.email, phone: a.phone }; }));
     var filtered = allApps.filter(function(a) {
       if (filter !== 'all' && a.status !== filter) return false;
       if (type !== 'all' && a.type !== type) return false;
@@ -389,11 +406,26 @@
     var body = document.getElementById('appDetailBody');
     var footer = document.getElementById('appDetailFooter');
     var localStorageApps = JSON.parse(storage.get('emirs_applications') || '[]');
-    var allApps = SAMPLE_APPLICATIONS.concat(localStorageApps);
-    var app = allApps.find(function(a) { return a.id === id; });
-    if (!app) { showToast('Application not found', 'error'); return; }
+    var sampleApp = SAMPLE_APPLICATIONS.find(function(a) { return a.id === id; });
+    var localApp = localStorageApps.find(function(a) { return a.id === id; });
+    if (sampleApp) {
+      showAppDetailInModal(sampleApp, false);
+      return;
+    }
+    if (localApp) {
+      showAppDetailInModal(localApp, true);
+      return;
+    }
+    sb.getById('applications', 'id', id).then(function(remoteApp) {
+      if (remoteApp) { showAppDetailInModal(remoteApp, false); }
+      else { showToast('Application not found', 'error'); }
+    }).catch(function() { showToast('Application not found', 'error'); });
+  };
 
-    var isLocalApp = localStorageApps.some(function(a) { return a.id === id; });
+  function showAppDetailInModal(app, isLocalApp) {
+    var modal = document.getElementById('appDetailModal');
+    var body = document.getElementById('appDetailBody');
+    var footer = document.getElementById('appDetailFooter');
     var isPending = app.status === 'pending';
     var isAccountType = app.type === 'account' || app.type === 'Account Opening' || app.type.indexOf('Account') !== -1;
 
@@ -431,7 +463,7 @@
     }
 
     body.innerHTML = html;
-    modal.dataset.appId = id;
+    modal.dataset.appId = app.id;
 
     if (isPending && isLocalApp) {
       footer.style.display = 'flex';
@@ -452,11 +484,14 @@
     var id = modal.dataset.appId;
     if (!id) { showToast('No application selected', 'error'); return; }
 
-    var allApps = JSON.parse(storage.get('emirs_applications') || '[]');
-    var idx = allApps.findIndex(function(a) { return a.id === id; });
-    if (idx === -1) { showToast('Application not found in storage', 'error'); return; }
-
-    var app = allApps[idx];
+    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var idx = localApps.findIndex(function(a) { return a.id === id; });
+    var app;
+    if (idx !== -1) {
+      app = localApps[idx];
+    } else {
+      showToast('Application not found', 'error'); return;
+    }
     if (app.status !== 'pending') { showToast('Application already ' + app.status, 'warning'); return; }
 
     var isAccountType = app.type === 'account' || app.type === 'Account Opening' || app.type.indexOf('Account') !== -1;
@@ -499,11 +534,13 @@
 
       existing.push(customer);
       storage.set('emirs_customers', JSON.stringify(existing));
+      sb.insert('customers', customer).catch(function(e) { console.warn('Supabase customer insert failed:', e); });
     }
 
     app.status = 'approved';
-    allApps[idx] = app;
-    storage.set('emirs_applications', JSON.stringify(allApps));
+    localApps[idx] = app;
+    storage.set('emirs_applications', JSON.stringify(localApps));
+    sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
     renderApplications();
@@ -519,16 +556,17 @@
     var id = modal.dataset.appId;
     if (!id) { showToast('No application selected', 'error'); return; }
 
-    var allApps = JSON.parse(storage.get('emirs_applications') || '[]');
-    var idx = allApps.findIndex(function(a) { return a.id === id; });
-    if (idx === -1) { showToast('Application not found in storage', 'error'); return; }
+    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var idx = localApps.findIndex(function(a) { return a.id === id; });
+    if (idx === -1) { showToast('Application not found', 'error'); return; }
 
-    var app = allApps[idx];
+    var app = localApps[idx];
     if (app.status !== 'pending') { showToast('Application already ' + app.status, 'warning'); return; }
 
     app.status = 'rejected';
-    allApps[idx] = app;
-    storage.set('emirs_applications', JSON.stringify(allApps));
+    localApps[idx] = app;
+    storage.set('emirs_applications', JSON.stringify(localApps));
+    sb.update('applications', 'id', id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
     renderApplications();
@@ -544,7 +582,18 @@
     var localSubs = JSON.parse(storage.get('emirs_contact_submissions') || '[]').map(function(s, i) {
       return { id: 'SUB-LOCAL-' + i, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : new Date().toISOString().split('T')[0] };
     });
-    var allSubs = SAMPLE_SUBMISSIONS.concat(localSubs);
+
+    sb.list('contact_submissions').then(function(remoteSubs) {
+      var remoteMapped = remoteSubs.map(function(s) {
+        return { id: 'SUB-REMOTE-' + s.id, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : '', _responded: s.responded, _remoteId: s.id };
+      });
+      renderSubList(container, SAMPLE_SUBMISSIONS.concat(localSubs).concat(remoteMapped), filter);
+    }).catch(function() {
+      renderSubList(container, SAMPLE_SUBMISSIONS.concat(localSubs), filter);
+    });
+  }
+
+  function renderSubList(container, allSubs, filter) {
     var filtered = filter === 'all' ? allSubs : allSubs.filter(function(s) { return s.status === filter; });
     var unread = filtered.filter(function(s) { return s.status === 'unread'; }).length;
     var countEl = document.getElementById('subCount');
@@ -560,23 +609,42 @@
   document.getElementById('subFilter')?.addEventListener('change', renderSubmissions);
 
   window.viewSubmissionDetail = function(id) {
+    if (id.indexOf('SUB-REMOTE-') === 0) {
+      var remoteId = parseInt(id.replace('SUB-REMOTE-', ''));
+      sb.getById('contact_submissions', 'id', remoteId).then(function(sub) {
+        if (!sub) { showToast('Submission not found', 'error'); return; }
+        showSubDetail(sub.name, sub.email, sub.subject, sub.message, sub.date, id);
+      }).catch(function() { showToast('Submission not found', 'error'); });
+      return;
+    }
     var localSubs = JSON.parse(storage.get('emirs_contact_submissions') || '[]').map(function(s, i) {
       return { id: 'SUB-LOCAL-' + i, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : '' };
     });
     var allSubs = SAMPLE_SUBMISSIONS.concat(localSubs);
     var sub = allSubs.find(function(s) { return s.id === id; });
     if (!sub) { showToast('Submission not found', 'error'); return; }
-    var body = document.getElementById('subDetailBody');
-    if (body) {
-      body.innerHTML = '<div class="detail-row"><span class="detail-label">From</span><span class="detail-value">' + sub.name + ' (' + sub.email + ')</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Subject</span><span class="detail-value">' + sub.subject + '</span></div>' +
-        '<div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">' + sub.date + '</span></div>' +
-        '<div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:8px"><p style="font-size:0.85rem;color:var(--primary);line-height:1.7">' + sub.message + '</p></div>';
-    }
-    document.getElementById('subDetailModal')?.classList.add('active');
+    showSubDetail(sub.name, sub.email, sub.subject, sub.message, sub.date, id);
   };
 
+  function showSubDetail(name, email, subject, message, date, id) {
+    var body = document.getElementById('subDetailBody');
+    if (body) {
+      body.innerHTML = '<div class="detail-row"><span class="detail-label">From</span><span class="detail-value">' + name + ' (' + email + ')</span></div>' +
+        '<div class="detail-row"><span class="detail-label">Subject</span><span class="detail-value">' + subject + '</span></div>' +
+        '<div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">' + date + '</span></div>' +
+        '<div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:8px"><p style="font-size:0.85rem;color:var(--primary);line-height:1.7">' + message + '</p></div>';
+    }
+    document.getElementById('subDetailModal')?.dataset.subId = id;
+    document.getElementById('subDetailModal')?.classList.add('active');
+  }
+
   window.markResponded = function() {
+    var modal = document.getElementById('subDetailModal');
+    var id = modal ? modal.dataset.subId : '';
+    if (id && id.indexOf('SUB-REMOTE-') === 0) {
+      var remoteId = parseInt(id.replace('SUB-REMOTE-', ''));
+      sb.update('contact_submissions', 'id', remoteId, { responded: true }).catch(function(e) { console.warn('Supabase update failed:', e); });
+    }
     showToast('Marked as responded', 'success');
     closeModal('subDetailModal');
     renderSubmissions();

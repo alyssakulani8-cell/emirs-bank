@@ -298,6 +298,7 @@
       var submissions = JSON.parse(storage.get('emirs_contact_submissions') || '[]');
       submissions.push(data);
       storage.set('emirs_contact_submissions', JSON.stringify(submissions));
+      sb.insert('contact_submissions', data).catch(function(e) { console.warn('Supabase sync failed:', e); });
       showToast('Message sent successfully! We\'ll respond within 24 hours.', 'success');
       this.reset();
       modal.classList.remove('active');
@@ -334,7 +335,17 @@
       if (user === 'emirs' && pass === 'admin2026') { sessionStorage.setItem('emirs_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
       var users = JSON.parse(storage.get('emirs_online_users') || '{}');
       if (users[user] && users[user].password === pass) { window.location.href = 'dashboard.html'; return; }
-      showToast('Invalid username or password.', 'error');
+      sb.list('enrolled_users').then(function(rows) {
+        var found = rows.find(function(u) { return u.username === user && u.password === pass; });
+        if (found) {
+          var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+          local[found.username] = { password: found.password, account: found.account, transferPin: found.transferPin };
+          storage.set('emirs_online_users', JSON.stringify(local));
+          window.location.href = 'dashboard.html';
+        } else {
+          showToast('Invalid username or password.', 'error');
+        }
+      }).catch(function() { showToast('Invalid username or password.', 'error'); });
     });
   }
 
@@ -510,6 +521,7 @@
         var existing = JSON.parse(storage.get('emirs_applications') || '[]');
         existing.push(app);
         storage.set('emirs_applications', JSON.stringify(existing));
+        sb.insert('applications', app).catch(function(e) { console.warn('Supabase sync failed:', e); });
         var refEl = document.getElementById('appRef');
         if (refEl) refEl.textContent = app.id;
         var progress = document.querySelector('.apply-progress');

@@ -579,7 +579,8 @@
             ]},
         ];
 
-        let enrolledUsers = JSON.parse(storage.get('emirs_online_users') || '{}');
+        let enrolledUsers = {};
+        try { enrolledUsers = JSON.parse(storage.get('emirs_online_users') || '{}'); } catch(e) { console.warn('parse enrolledUsers:', e); }
         let currentCustomer = null;
         let verifiedCustomer = null;
         let currentView = 'overview';
@@ -643,7 +644,7 @@
             renderStatements();
         }
 
-        function verifyIdentity() {
+        window.verifyIdentity = function verifyIdentity() {
             try {
               const acct = document.getElementById('enrollAccount').value.trim();
               const ssn = document.getElementById('enrollSsn').value.trim();
@@ -1518,6 +1519,16 @@
             msgs.scrollTop = msgs.scrollHeight;
         });
         document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('chatSend').click(); });
+        (function() {
+          var d = document.createElement('div');
+          d.id = 'debugStatus';
+          d.style.cssText = 'position:fixed;bottom:0;left:0;background:#333;color:#0f0;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace';
+          var txt = 'JS loaded | verify=' + (typeof window.verifyIdentity === 'function' ? 'OK' : 'MISSING');
+          txt += ' | sb=' + (typeof sb !== 'undefined' ? 'OK' : 'N/A');
+          try { txt += ' | customers=' + (typeof getAllCustomers === 'function' ? getAllCustomers().length : '?'); } catch(e) { txt += ' | customers=ERR'; }
+          d.textContent = txt;
+          document.body.appendChild(d);
+        })();
     </script>
 </body>
 </html>

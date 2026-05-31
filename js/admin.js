@@ -182,6 +182,8 @@
     el.addEventListener('click', function(e) { e.preventDefault(); navigateTo(this.dataset.page); });
   });
 
+  window.navigateTo = navigateTo;
+
   function initDashboard() {
     renderRecentTransactions();
     renderPendingApprovals();
@@ -329,9 +331,6 @@
     count.textContent = checked + ' selected';
   }
 
-  document.getElementById('txnFilter')?.addEventListener('change', function() { renderFilteredTransactions(); });
-  document.getElementById('txnType')?.addEventListener('change', function() { renderFilteredTransactions(); });
-
   window.exportCSV = function() {
     var rows = [['ID','Customer','Type','Amount','Account','Status','Date']];
     SAMPLE_TRANSACTIONS.forEach(function(t) { rows.push([t.id, t.customer, t.type, t.amount.toFixed(2), t.account, t.status, t.date]); });
@@ -363,12 +362,16 @@
     var type = document.getElementById('appType')?.value || 'all';
     var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
 
-    sb.list('applications').then(function(remoteApps) {
-      var merged = mergeAppArrays(localApps, remoteApps);
-      renderAppList(container, merged, filter, type);
-    }).catch(function() {
+    if (typeof sb !== 'undefined') {
+      sb.list('applications').then(function(remoteApps) {
+        var merged = mergeAppArrays(localApps, remoteApps);
+        renderAppList(container, merged, filter, type);
+      }).catch(function() {
+        renderAppList(container, localApps, filter, type);
+      });
+    } else {
       renderAppList(container, localApps, filter, type);
-    });
+    }
   }
 
   function mergeAppArrays(local, remote) {
@@ -416,10 +419,14 @@
       showAppDetailInModal(localApp, true);
       return;
     }
-    sb.getById('applications', 'id', id).then(function(remoteApp) {
-      if (remoteApp) { showAppDetailInModal(remoteApp, false); }
-      else { showToast('Application not found', 'error'); }
-    }).catch(function() { showToast('Application not found', 'error'); });
+    if (typeof sb !== 'undefined') {
+      sb.getById('applications', 'id', id).then(function(remoteApp) {
+        if (remoteApp) { showAppDetailInModal(remoteApp, false); }
+        else { showToast('Application not found', 'error'); }
+      }).catch(function() { showToast('Application not found', 'error'); });
+    } else {
+      showToast('Application not found', 'error');
+    }
   };
 
   function showAppDetailInModal(app, isLocalApp) {
@@ -534,13 +541,13 @@
 
       existing.push(customer);
       storage.set('emirs_customers', JSON.stringify(existing));
-      sb.insert('customers', customer).catch(function(e) { console.warn('Supabase customer insert failed:', e); });
+      if (typeof sb !== 'undefined') sb.insert('customers', customer).catch(function(e) { console.warn('Supabase customer insert failed:', e); });
     }
 
     app.status = 'approved';
     localApps[idx] = app;
     storage.set('emirs_applications', JSON.stringify(localApps));
-    sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase update failed:', e); });
+    if (typeof sb !== 'undefined') sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
     renderApplications();
@@ -566,7 +573,7 @@
     app.status = 'rejected';
     localApps[idx] = app;
     storage.set('emirs_applications', JSON.stringify(localApps));
-    sb.update('applications', 'id', id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase update failed:', e); });
+    if (typeof sb !== 'undefined') sb.update('applications', 'id', id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
     renderApplications();
@@ -583,14 +590,18 @@
       return { id: 'SUB-LOCAL-' + i, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : new Date().toISOString().split('T')[0] };
     });
 
-    sb.list('contact_submissions').then(function(remoteSubs) {
-      var remoteMapped = remoteSubs.map(function(s) {
-        return { id: 'SUB-REMOTE-' + s.id, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : '', _responded: s.responded, _remoteId: s.id };
+    if (typeof sb !== 'undefined') {
+      sb.list('contact_submissions').then(function(remoteSubs) {
+        var remoteMapped = remoteSubs.map(function(s) {
+          return { id: 'SUB-REMOTE-' + s.id, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : '', _responded: s.responded, _remoteId: s.id };
+        });
+        renderSubList(container, SAMPLE_SUBMISSIONS.concat(localSubs).concat(remoteMapped), filter);
+      }).catch(function() {
+        renderSubList(container, SAMPLE_SUBMISSIONS.concat(localSubs), filter);
       });
-      renderSubList(container, SAMPLE_SUBMISSIONS.concat(localSubs).concat(remoteMapped), filter);
-    }).catch(function() {
+    } else {
       renderSubList(container, SAMPLE_SUBMISSIONS.concat(localSubs), filter);
-    });
+    }
   }
 
   function renderSubList(container, allSubs, filter) {
@@ -611,10 +622,12 @@
   window.viewSubmissionDetail = function(id) {
     if (id.indexOf('SUB-REMOTE-') === 0) {
       var remoteId = parseInt(id.replace('SUB-REMOTE-', ''));
-      sb.getById('contact_submissions', 'id', remoteId).then(function(sub) {
-        if (!sub) { showToast('Submission not found', 'error'); return; }
-        showSubDetail(sub.name, sub.email, sub.subject, sub.message, sub.date, id);
-      }).catch(function() { showToast('Submission not found', 'error'); });
+      if (typeof sb !== 'undefined') {
+        sb.getById('contact_submissions', 'id', remoteId).then(function(sub) {
+          if (!sub) { showToast('Submission not found', 'error'); return; }
+          showSubDetail(sub.name, sub.email, sub.subject, sub.message, sub.date, id);
+        }).catch(function() { showToast('Submission not found', 'error'); });
+      } else { showToast('Submission not found', 'error'); }
       return;
     }
     var localSubs = JSON.parse(storage.get('emirs_contact_submissions') || '[]').map(function(s, i) {
@@ -643,7 +656,9 @@
     var id = modal ? modal.dataset.subId : '';
     if (id && id.indexOf('SUB-REMOTE-') === 0) {
       var remoteId = parseInt(id.replace('SUB-REMOTE-', ''));
-      sb.update('contact_submissions', 'id', remoteId, { responded: true }).catch(function(e) { console.warn('Supabase update failed:', e); });
+      if (typeof sb !== 'undefined') {
+        sb.update('contact_submissions', 'id', remoteId, { responded: true }).catch(function(e) { console.warn('Supabase update failed:', e); });
+      }
     }
     showToast('Marked as responded', 'success');
     closeModal('subDetailModal');
@@ -862,13 +877,17 @@
     URL.revokeObjectURL(blob);
   }
 
+  function safeInit(name, fn) {
+    try { fn(); } catch(e) { console.warn('admin: ' + name + ' failed:', e); }
+  }
+
   function init() {
-    initTheme();
-    initDate();
-    initSidebar();
-    initDashboard();
-    initSearch();
-    initNotifications();
+    safeInit('theme', initTheme);
+    safeInit('date', initDate);
+    safeInit('sidebar', initSidebar);
+    safeInit('dashboard', initDashboard);
+    safeInit('search', initSearch);
+    safeInit('notifications', initNotifications);
     navigateTo('dashboard');
   }
 

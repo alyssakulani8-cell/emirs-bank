@@ -541,6 +541,8 @@
 
     <script src="js/supabase.js"></script>
     <script>
+        window.onerror = function(msg, url, line) { try { var d=document.createElement('div');d.style.cssText='position:fixed;top:0;right:0;background:#c00;color:#fff;font-size:12px;padding:4px 8px;z-index:99999;font-family:monospace;max-width:80%';d.textContent='ERROR: '+msg+' (line '+line+')';document.body.appendChild(d); } catch(e) {} };
+        try { var d=document.createElement('div');d.id='dbg0';d.style.cssText='position:fixed;top:0;left:0;background:green;color:#fff;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace';d.textContent='SCRIPT STARTED';document.body.appendChild(d); } catch(e) {}
         var storage = { get: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }, set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }, remove: function(k) { try { localStorage.removeItem(k); } catch(e) {} } };
         const CUSTOMER_DB = [
             { account: '****4829', ssn: '1234', dob: '1985-06-15', email: 'john@email.com', name: 'John Smith', initials: 'JS', accounts: [
@@ -722,7 +724,7 @@
         function showFieldError(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.classList.add('show');} }
         function hideFieldError(id) { const el=document.getElementById(id); if(el)el.classList.remove('show'); }
 
-        document.getElementById('bankLoginForm').addEventListener('submit', function(e) {
+        try { document.getElementById('bankLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('loginUser').value.trim().toLowerCase();
             const password = document.getElementById('loginPass').value.trim();
@@ -753,9 +755,9 @@
             initSessionTimer();
             if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(refreshCustomerData, 15000);
-        });
+        }); } catch(e) { console.warn('login form init:', e); }
 
-        document.getElementById('logoutBank').addEventListener('click', function(e) {
+        try { document.getElementById('logoutBank').addEventListener('click', function(e) {
             e.preventDefault(); currentCustomer = null; currentUsername = '';
             if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; }
             if (sessionTimer) { clearTimeout(sessionTimer); sessionTimer = null; }
@@ -768,9 +770,9 @@
             document.getElementById('cSidebar').classList.remove('open');
             var b = document.getElementById('cSidebarBackdrop');
             if (b) b.style.display = 'none';
-        });
+        }); } catch(e) { console.warn('logout btn init:', e); }
 
-        document.getElementById('cSidebarToggle').addEventListener('click', toggleCustomerSidebar);
+        try { document.getElementById('cSidebarToggle').addEventListener('click', toggleCustomerSidebar); } catch(e) { console.warn('sidebar toggle init:', e); }
 
         let cardStatus = {};
 
@@ -1506,7 +1508,7 @@
         }
 
         // Chat support
-        document.getElementById('chatSend').addEventListener('click', function() {
+        try { document.getElementById('chatSend').addEventListener('click', function() {
             const input = document.getElementById('chatInput');
             const msgs = document.getElementById('chatMessages');
             if (!input.value.trim()) return;
@@ -1517,9 +1519,9 @@
                 msgs.scrollTop = msgs.scrollHeight;
             }, 1000);
             msgs.scrollTop = msgs.scrollHeight;
-        });
-        document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('chatSend').click(); });
-        (function() {
+        }); } catch(e) { console.warn('chat init:', e); }
+        try { document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('chatSend').click(); }); } catch(e) { console.warn('chat input init:', e); }
+        try {
           var d = document.createElement('div');
           d.id = 'debugStatus';
           d.style.cssText = 'position:fixed;bottom:0;left:0;background:#333;color:#0f0;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace';
@@ -1528,7 +1530,7 @@
           try { txt += ' | customers=' + (typeof getAllCustomers === 'function' ? getAllCustomers().length : '?'); } catch(e) { txt += ' | customers=ERR'; }
           d.textContent = txt;
           document.body.appendChild(d);
-        })();
+        } catch(e) {}
     </script>
 </body>
 </html>

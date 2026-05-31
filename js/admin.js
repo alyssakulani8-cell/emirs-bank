@@ -436,13 +436,17 @@
     var isPending = app.status === 'pending';
     var isAccountType = app.type === 'account' || app.type === 'Account Opening' || app.type.indexOf('Account') !== -1;
 
+    var initialDeposit = app.initialDeposit || app.initialdeposit;
+    var idType = app.idType || app.idtype;
+    var idNumber = app.idNumber || app.idnumber;
+
     var html = '';
     html += '<div class="detail-row"><span class="detail-label">Application ID</span><span class="detail-value" style="font-family:monospace">' + app.id + '</span></div>';
     html += '<div class="detail-row"><span class="detail-label">Applicant</span><span class="detail-value">' + app.name + '</span></div>';
     html += '<div class="detail-row"><span class="detail-label">Product</span><span class="detail-value">' + app.product + '</span></div>';
     html += '<div class="detail-row"><span class="detail-label">Type</span><span class="detail-value" style="text-transform:capitalize">' + app.type + '</span></div>';
-    if (app.initialDeposit && parseFloat(app.initialDeposit) > 0) {
-      html += '<div class="detail-row"><span class="detail-label">Initial Deposit</span><span class="detail-value">$' + parseFloat(app.initialDeposit).toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>';
+    if (initialDeposit && parseFloat(initialDeposit) > 0) {
+      html += '<div class="detail-row"><span class="detail-label">Initial Deposit</span><span class="detail-value">$' + parseFloat(initialDeposit).toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>';
     }
     if (app.amount) {
       html += '<div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value">$' + app.amount.toLocaleString() + '</span></div>';
@@ -455,7 +459,7 @@
     if (app.phone) html += '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + app.phone + '</span></div>';
     if (app.dob) html += '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + app.dob + '</span></div>';
     if (app.ssn) html += '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + app.ssn + '</span></div>';
-    if (app.idType && app.idNumber) html += '<div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">' + app.idType + ' — ' + app.idNumber + '</span></div>';
+    if (idType && idNumber) html += '<div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">' + idType + ' — ' + idNumber + '</span></div>';
 
     if (isPending && isAccountType && isLocalApp) {
       html += '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">';
@@ -511,7 +515,7 @@
 
       var existing = JSON.parse(storage.get('emirs_customers') || '[]');
       var initials = app.name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase() || 'NA';
-      var deposit = parseFloat(app.initialDeposit) || 0;
+      var deposit = parseFloat(app.initialDeposit || app.initialdeposit) || 0;
 
       var customer = {
         account: accountNumber,

@@ -339,7 +339,7 @@
         var found = rows.find(function(u) { return u.username === user && u.password === pass; });
         if (found) {
           var local = JSON.parse(storage.get('emirs_online_users') || '{}');
-          local[found.username] = { password: found.password, account: found.account, transferPin: found.transferPin };
+          local[found.username] = { password: found.password, account: found.account, transferPin: found.transferpin || found.transferPin };
           storage.set('emirs_online_users', JSON.stringify(local));
           window.location.href = 'dashboard.html';
         } else {
@@ -521,7 +521,9 @@
         var existing = JSON.parse(storage.get('emirs_applications') || '[]');
         existing.push(app);
         storage.set('emirs_applications', JSON.stringify(existing));
-        sb.insert('applications', app).catch(function(e) { console.warn('Supabase sync failed:', e); });
+        var sbApp = {};
+        Object.keys(app).forEach(function(k) { sbApp[k.toLowerCase()] = app[k]; });
+        sb.insert('applications', sbApp).catch(function(e) { console.warn('Supabase sync failed:', e); });
         var refEl = document.getElementById('appRef');
         if (refEl) refEl.textContent = app.id;
         var progress = document.querySelector('.apply-progress');

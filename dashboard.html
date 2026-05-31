@@ -675,7 +675,7 @@
             if (!valid) return;
             enrolledUsers[username] = { password: password, account: verifiedCustomer.account, transferPin: transferPin };
             storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
-            sb.upsert('enrolled_users', { username: username, password: password, account: verifiedCustomer.account, transferPin: transferPin }, 'username').catch(function(e) { console.warn('Supabase sync failed:', e); });
+            sb.upsert('enrolled_users', { username: username, password: password, account: verifiedCustomer.account, transferpin: transferPin }, 'username').catch(function(e) { console.warn('Supabase sync failed:', e); });
             document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
             document.getElementById('enrollStep3').classList.add('active');
             document.querySelectorAll('.step-dot')[1].classList.add('completed');
@@ -755,7 +755,7 @@
             }).catch(function() { refreshCustomerData(); });
             sb.list('enrolled_users').then(function(remote) {
               var local = JSON.parse(storage.get('emirs_online_users') || '{}');
-              remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferPin }; } });
+          remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferpin || u.transferPin }; } });
               storage.set('emirs_online_users', JSON.stringify(local));
               enrolledUsers = local;
             }).catch(function() {});
@@ -1337,7 +1337,7 @@
             }
             enrolledUsers[currentUsername].transferPin = newPin;
             storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
-            sb.update('enrolled_users', 'username', currentUsername, { transferPin: newPin }).catch(function(e) { console.warn('Supabase PIN sync failed:', e); });
+            sb.update('enrolled_users', 'username', currentUsername, { transferpin: newPin }).catch(function(e) { console.warn('Supabase PIN sync failed:', e); });
             msgEl.style.display = 'block';
             msgEl.style.color = 'var(--success)';
             msgEl.textContent = 'Transfer PIN updated successfully';

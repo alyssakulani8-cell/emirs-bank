@@ -659,7 +659,8 @@
     var local = JSON.parse(storage.get('emirs_customers') || '[]');
     var all = local.map(function(c) { return { _source: 'local', _key: c.account || c.email, _name: c.name, _raw: c }; });
 
-    if (typeof sb === 'undefined') { if (callback) callback(all); return; }
+    callback(all);
+    if (typeof sb === 'undefined') return;
     sb.list('customers').then(function(remote) {
       remote.forEach(function(r) {
         var key = r.account || r.email || r.name;
@@ -667,8 +668,8 @@
           all.push({ _source: 'remote', _key: key, _name: r.name, _raw: r });
         }
       });
-      if (callback) callback(all);
-    }).catch(function() { if (callback) callback(all); });
+      callback(all);
+    }).catch(function() { /* remote sync failed, local data already shown */ });
   }
 
   var SAMPLE_STATUSES = ['active', 'active', 'active', 'active', 'frozen', 'active', 'active', 'active', 'active', 'suspended'];

@@ -211,7 +211,8 @@
             initSessionTimer();
             if (refreshInterval) clearInterval(refreshInterval);
             refreshInterval = setInterval(refreshCustomerData, 15000);
-        }); } catch(e) { console.warn('login form init:', e); }
+            }
+          }); } catch(e) { console.warn('login form init:', e); }
 
         try { document.getElementById('logoutBank').addEventListener('click', function(e) {
             e.preventDefault(); currentCustomer = null; currentUsername = '';

@@ -1,6 +1,4 @@
 ﻿
-        window.onerror = function(msg, url, line) { try { var d=document.createElement('div');d.style.cssText='position:fixed;top:0;right:0;background:#c00;color:#fff;font-size:12px;padding:4px 8px;z-index:99999;font-family:monospace;max-width:80%';d.textContent='ERROR: '+msg+' (line '+line+')';document.body.appendChild(d); } catch(e) {} };
-        try { var d=document.createElement('div');d.id='dbg0';d.style.cssText='position:fixed;top:0;left:0;background:green;color:#fff;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace';d.textContent='SCRIPT STARTED';document.body.appendChild(d); } catch(e) {}
         var storage = { get: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }, set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }, remove: function(k) { try { localStorage.removeItem(k); } catch(e) {} } };
         const CUSTOMER_DB = [
             { account: '****4829', ssn: '1234', dob: '1985-06-15', email: 'john@email.com', name: 'John Smith', initials: 'JS', accounts: [
@@ -979,18 +977,4 @@
             msgs.scrollTop = msgs.scrollHeight;
         }); } catch(e) { console.warn('chat init:', e); }
         try { document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('chatSend').click(); }); } catch(e) { console.warn('chat input init:', e); }
-        try {
-          var btn = document.getElementById('verifyIdentityBtn');
-          if (btn) btn.addEventListener('click', function(e) { if (typeof window.verifyIdentity === 'function') window.verifyIdentity(); else alert('verifyIdentity not loaded yet'); });
-        } catch(e) {}
-        try {
-          var d = document.createElement('div');
-          d.id = 'debugStatus';
-          d.style.cssText = 'position:fixed;bottom:0;left:0;background:#333;color:#0f0;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace';
-          var txt = 'JS loaded | verify=' + (typeof window.verifyIdentity === 'function' ? 'OK' : 'MISSING');
-          txt += ' | sb=' + (typeof sb !== 'undefined' ? 'OK' : 'N/A');
-          try { txt += ' | customers=' + (typeof getAllCustomers === 'function' ? getAllCustomers().length : '?'); } catch(e) { txt += ' | customers=ERR'; }
-          d.textContent = txt;
-          document.body.appendChild(d);
-        } catch(e) {}
     

@@ -484,8 +484,8 @@
   };
 
   window.generateAccountNumber = function() {
-    var suffix = String(Math.floor(1000 + Math.random() * 9000));
-    document.getElementById('allocAccountNum').value = '****' + suffix;
+    var num = '10' + String(Math.floor(100000 + Math.random() * 900000));
+    document.getElementById('allocAccountNum').value = num;
   };
 
   window.approveApplication = function() {

@@ -606,21 +606,23 @@
         function loadApprovedCustomers() { approvedCustomers = JSON.parse(storage.get('emirs_customers') || '[]'); }
         function getAllCustomers() { loadApprovedCustomers(); return [...CUSTOMER_DB, ...approvedCustomers]; }
 
-        sb.list('customers').then(function(remote) {
-          var local = JSON.parse(storage.get('emirs_customers') || '[]');
-          var ids = {};
-          local.forEach(function(c) { ids[c.account] = true; });
-          remote.forEach(function(c) { if (!ids[c.account]) { local.push(c); ids[c.account] = true; } });
-          storage.set('emirs_customers', JSON.stringify(local));
-          loadApprovedCustomers();
-        }).catch(function(e) { console.warn('Supabase customer sync failed:', e); });
+        if (typeof sb !== 'undefined') {
+          sb.list('customers').then(function(remote) {
+            var local = JSON.parse(storage.get('emirs_customers') || '[]');
+            var ids = {};
+            local.forEach(function(c) { ids[c.account] = true; });
+            remote.forEach(function(c) { if (!ids[c.account]) { local.push(c); ids[c.account] = true; } });
+            storage.set('emirs_customers', JSON.stringify(local));
+            loadApprovedCustomers();
+          }).catch(function(e) { console.warn('Supabase customer sync failed:', e); });
 
-        sb.list('enrolled_users').then(function(remote) {
-          var local = JSON.parse(storage.get('emirs_online_users') || '{}');
-          remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferPin }; } });
-          storage.set('emirs_online_users', JSON.stringify(local));
-          enrolledUsers = local;
-        }).catch(function(e) { console.warn('Supabase enrolled_users sync failed:', e); });
+          sb.list('enrolled_users').then(function(remote) {
+            var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+            remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferPin }; } });
+            storage.set('emirs_online_users', JSON.stringify(local));
+            enrolledUsers = local;
+          }).catch(function(e) { console.warn('Supabase enrolled_users sync failed:', e); });
+        }
 
         function refreshCustomerData() {
             if (!currentCustomer || !currentUsername) return;
@@ -649,9 +651,32 @@
             if (!dob) { showFieldError('errDob', 'Date of birth is required'); valid = false; } else { hideFieldError('errDob'); }
             if (!email || !email.includes('@')) { showFieldError('errEmail', 'Valid email is required'); valid = false; } else { hideFieldError('errEmail'); }
             if (!valid) return;
-            const allCustomers = getAllCustomers();
-            const match = allCustomers.find(c => c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email);
-            if (!match) { showToast('We could not verify your information.', 'error'); return; }
+            var allCustomers = getAllCustomers();
+            var match = allCustomers.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email; });
+            if (!match) {
+              if (typeof sb !== 'undefined') {
+                sb.list('customers').then(function(remote) {
+                  var found = remote.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email === email; });
+                  if (found) {
+                    var local = JSON.parse(storage.get('emirs_customers') || '[]');
+                    local.push(found);
+                    storage.set('emirs_customers', JSON.stringify(local));
+                    loadApprovedCustomers();
+                    verifiedCustomer = found;
+                    document.getElementById('verifySuccess').classList.add('show');
+                    document.querySelectorAll('.auth-step').forEach(function(s) { s.classList.remove('active'); });
+                    document.getElementById('enrollStep2').classList.add('active');
+                    document.querySelectorAll('.step-dot')[0].classList.add('completed');
+                    document.querySelectorAll('.step-dot')[1].classList.add('active');
+                  } else {
+                    showToast('We could not verify your information. Check your details and try again.', 'error');
+                  }
+                }).catch(function() { showToast('We could not verify your information.', 'error'); });
+              } else {
+                showToast('We could not verify your information.', 'error');
+              }
+              return;
+            }
             for (let u in enrolledUsers) { if (enrolledUsers[u].account === acct) { showToast('Already enrolled. Please sign in.', 'warning'); return; } }
             verifiedCustomer = match;
             document.getElementById('verifySuccess').classList.add('show');

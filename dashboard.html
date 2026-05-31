@@ -609,9 +609,12 @@
         if (typeof sb !== 'undefined') {
           sb.list('customers').then(function(remote) {
             var local = JSON.parse(storage.get('emirs_customers') || '[]');
-            var ids = {};
-            local.forEach(function(c) { ids[c.account] = true; });
-            remote.forEach(function(c) { if (!ids[c.account]) { local.push(c); ids[c.account] = true; } });
+            var byAcct = {};
+            local.forEach(function(c) { byAcct[c.account] = c; });
+            remote.forEach(function(c) {
+              if (byAcct[c.account]) { Object.assign(byAcct[c.account], c); }
+              else { local.push(c); byAcct[c.account] = c; }
+            });
             storage.set('emirs_customers', JSON.stringify(local));
             loadApprovedCustomers();
           }).catch(function(e) { console.warn('Supabase customer sync failed:', e); });

@@ -168,7 +168,7 @@ ul { list-style: none; }
 .hero {
   position: relative; min-height: 100vh; display: flex; align-items: center;
   background: linear-gradient(135deg, #0a1628 0%, #132244 30%, #0d1b33 60%, #0a1628 100%);
-  overflow: hidden; padding: 120px 0 80px;
+  overflow: hidden; padding: 60px 0 80px;
 }
 [data-theme="dark"] .hero { background: linear-gradient(135deg, #070c14 0%, #0f172a 30%, #0a0f1a 60%, #070c14 100%); }
 .hero-bg { position: absolute; inset: 0; overflow: hidden; }
@@ -620,6 +620,7 @@ ul { list-style: none; }
   padding: 8px 0;
   position: relative;
   z-index: 5;
+  margin-top: 80px;
 }
 .market-ticker::before {
   content: '';

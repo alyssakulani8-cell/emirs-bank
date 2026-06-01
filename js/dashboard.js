@@ -472,7 +472,7 @@
         function getPendingTxns() {
             const all = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
             return all.filter(p => p.fromAccount === currentCustomer.account).map(p => ({
-                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime()
+                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + (p.toBank && p.toBank !== 'Emirs Bank' ? ' (' + p.toBank + ')' : '') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime()
             }));
         }
 
@@ -542,16 +542,18 @@
         }
 
         function lookupRecipient() {
-            const el = document.getElementById('recipientName');
+            const el = document.getElementById('recipientNameLookup');
             const acct = document.getElementById('toAccount').value.trim();
             if (acct.length < 4) { el.innerHTML = ''; return; }
+            const nameInput = document.getElementById('localRecipientName');
             loadApprovedCustomers();
-            const normalized = acct.replace(/[^0-9*]/g, '');
-            const found = getAllCustomers().find(c =>
-              c.account === acct ||
-              c.account.replace(/[^0-9*]/g, '').endsWith(normalized.slice(-4))
-            );
-            el.innerHTML = found ? '<span style="color:var(--success)"><i class="fas fa-check-circle"></i> ' + found.name + '</span>' : '<span style="color:var(--error)"><i class="fas fa-exclamation-circle"></i> Account not found</span>';
+            const found = getAllCustomers().find(c => c.account === acct);
+            if (found) {
+                el.innerHTML = '<span style="color:var(--success)"><i class="fas fa-check-circle"></i> ' + found.name + '</span>';
+                if (!nameInput.value) nameInput.value = found.name;
+            } else {
+                el.innerHTML = '<span style="color:var(--text-secondary)"><i class="fas fa-building"></i> External account</span>';
+            }
         }
 
         function switchTransferType(type) {
@@ -595,12 +597,10 @@
 
             if (transferType === 'local') {
                 const toAcct = document.getElementById('toAccount').value.trim();
+                const localName = document.getElementById('localRecipientName').value.trim();
                 if (!toAcct) { showToast('Enter a recipient account number', 'error'); return; }
+                if (!localName) { showToast('Enter the recipient name', 'error'); return; }
                 if (toAcct === fa.number) { showToast('Cannot transfer to your own account', 'error'); return; }
-                loadApprovedCustomers();
-                const all = getAllCustomers();
-                const recipient = all.find(c => c.account === toAcct);
-                if (!recipient) { showToast('Recipient account not found', 'error'); return; }
             } else {
                 const intlName = document.getElementById('intlRecipientName').value.trim();
                 const intlIban = document.getElementById('intlIban').value.trim();
@@ -636,7 +636,9 @@
                 document.getElementById('pinInput').focus();
                 return;
             }
+            const data = pendingTransferData;
             closePinModal();
+            pendingTransferData = data;
             executeTransfer();
         }
 
@@ -657,15 +659,15 @@
 
             if (transferType === 'local') {
                 const toAcct = document.getElementById('toAccount').value.trim();
-                const all = getAllCustomers();
-                const recipient = all.find(c => c.account === toAcct);
+                const localName = document.getElementById('localRecipientName').value.trim();
+                const localBank = document.getElementById('localBankName').value.trim() || 'Emirs Bank';
                 const pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
-                pending.push({ id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId, fromName: currentCustomer.name, toAccount: toAcct, toName: recipient.name, amount: amt, memo: memo, status: 'pending', date: new Date().toISOString(), transferType: 'local' });
+                pending.push({ id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId, fromName: currentCustomer.name, toAccount: toAcct, toName: localName, toBank: localBank, amount: amt, memo: memo, status: 'pending', date: new Date().toISOString(), transferType: 'local' });
                 storage.set('emirs_pending_transfers', JSON.stringify(pending));
                 showTransferReceipt({
                     ref: refId, transferType: 'local',
                     fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
-                    toName: recipient.name, toAccount: toAcct,
+                    toName: localName, toAccount: toAcct,
                     amount: amt, memo: memo, date: dateStr, isRecurring: false,
                     status: 'Pending Approval'
                 });

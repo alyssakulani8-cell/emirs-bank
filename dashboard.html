@@ -314,7 +314,9 @@
                                 <div class="form-group"><label>To</label>
                                     <select id="toAccountSelect" onchange="useBeneficiary(this.value)"><option value="">Select beneficiary or enter number below</option></select>
                                 </div>
-                                <div class="form-group"><label>Or enter account number</label><input type="text" id="toAccount" placeholder="Enter recipient account number" oninput="lookupRecipient()"><div id="recipientName" style="font-size:0.82rem;margin-top:4px;min-height:20px"></div></div>
+                                <div class="form-group"><label>Recipient Name <span style="color:var(--error)">*</span></label><input type="text" id="localRecipientName" placeholder="Full name of recipient" required><div id="recipientNameLookup" style="font-size:0.82rem;margin-top:4px;min-height:20px"></div></div>
+                                <div class="form-group"><label>Recipient Account Number <span style="color:var(--error)">*</span></label><input type="text" id="toAccount" placeholder="Enter recipient account number" oninput="lookupRecipient()" required></div>
+                                <div class="form-group"><label>Recipient Bank Name</label><input type="text" id="localBankName" placeholder="e.g. Emirs Bank or other bank name" value="Emirs Bank"></div>
                             </div>
                             <div id="intlFields" style="display:none">
                                 <div class="form-group"><label>Recipient Full Name <span style="color:var(--error)">*</span></label><input type="text" id="intlRecipientName" placeholder="Full name as on bank account"></div>

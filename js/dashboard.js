@@ -664,6 +664,9 @@
                 const pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
                 pending.push({ id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId, fromName: currentCustomer.name, toAccount: toAcct, toName: localName, toBank: localBank, amount: amt, memo: memo, status: 'pending', date: new Date().toISOString(), transferType: 'local' });
                 storage.set('emirs_pending_transfers', JSON.stringify(pending));
+                if (typeof sb !== 'undefined') {
+                  sb.insert('applications', { id: refId, name: currentCustomer.name, type: 'pending_transfer', product: 'local', status: 'pending', date: new Date().toISOString(), phone: JSON.stringify({ fromAccount: selectedFromAccount.number, toAccount: toAcct, toName: localName, toBank: localBank, memo: memo, amount: amt }) }).catch(function(e) { console.warn('Supabase transfer sync failed:', e); });
+                }
                 showTransferReceipt({
                     ref: refId, transferType: 'local',
                     fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
@@ -692,6 +695,9 @@
                     intlPurpose: intlPurpose, intlFeeOption: intlFeeOption
                 });
                 storage.set('emirs_pending_transfers', JSON.stringify(pending));
+                if (typeof sb !== 'undefined') {
+                  sb.insert('applications', { id: refId, name: currentCustomer.name, type: 'pending_transfer', product: 'international', status: 'pending', date: new Date().toISOString(), phone: JSON.stringify({ fromAccount: selectedFromAccount.number, amount: amt, memo: memo, intlRecipientName: intlName, intlIban: intlIban, intlSwift: intlSwift, intlBankName: intlBank, intlCountry: intlCountry, intlCurrency: intlCurrency }) }).catch(function(e) { console.warn('Supabase intl transfer sync failed:', e); });
+                }
                 const countryNames = { US:'United States', GB:'United Kingdom', DE:'Germany', FR:'France', IT:'Italy', ES:'Spain', CA:'Canada', AU:'Australia', JP:'Japan', NG:'Nigeria', GH:'Ghana', KE:'Kenya', ZA:'South Africa', BR:'Brazil', IN:'India' };
                 showTransferReceipt({
                     ref: refId, transferType: 'international',

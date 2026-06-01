@@ -816,15 +816,14 @@
     showToast('Dashboard opened for ' + customerName, 'success');
   };
 
-  window.loadPendingTransfers = function() {
-    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+  function renderTransferList(transfers) {
     var container = document.getElementById('pendingTransfersList');
     if (!container) return;
-    if (pending.length === 0) {
+    if (!transfers || transfers.length === 0) {
       container.innerHTML = '<div class="empty-state" style="text-align:center;padding:24px;color:var(--text-secondary)"><i class="fas fa-check-circle" style="font-size:2rem;margin-bottom:12px;display:block;color:var(--success)"></i>No pending transfers</div>';
       return;
     }
-    container.innerHTML = pending.map(function(t) {
+    container.innerHTML = transfers.map(function(t) {
       var date = new Date(t.date);
       var dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
       return '<div class="transfer-item" style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
@@ -842,6 +841,43 @@
         '</div>' +
         '</div>';
     }).join('');
+  }
+
+  window.loadPendingTransfers = function() {
+    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    if (typeof sb !== 'undefined') {
+      sb.list('applications').then(function(remote) {
+        var remoteTransfers = remote.filter(function(a) { return a.type === 'pending_transfer' && a.status === 'pending'; });
+        var seen = {};
+        pending.forEach(function(t) { seen[t.id] = true; });
+        remoteTransfers.forEach(function(r) {
+          if (!seen[r.id]) {
+            var extra = {};
+            try { if (r.phone) extra = JSON.parse(r.phone); } catch(e) {}
+            pending.push({
+              id: r.id,
+              fromName: r.name,
+              fromAccount: extra.fromAccount || '',
+              toName: extra.toName || '',
+              toAccount: extra.toAccount || '',
+              toBank: extra.toBank || '',
+              intlRecipientName: extra.intlRecipientName || '',
+              amount: extra.amount || 0,
+              memo: extra.memo || '',
+              date: r.date,
+              transferType: r.product || 'local',
+              status: 'pending',
+              _supabase: true
+            });
+            seen[r.id] = true;
+          }
+        });
+        storage.set('emirs_pending_transfers', JSON.stringify(pending));
+        renderTransferList(pending);
+      }).catch(function() { renderTransferList(pending); });
+    } else {
+      renderTransferList(pending);
+    }
   };
 
   window.approvePendingTransfer = function(id) {
@@ -870,6 +906,7 @@
     storage.set('emirs_pending_transfers', JSON.stringify(pending));
     if (typeof sb !== 'undefined') {
       sb.update('customers', 'account', customer.account, customer).catch(function(e) { console.warn('Supabase customer update failed:', e); });
+      sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase transfer approve failed:', e); });
     }
     window.loadPendingTransfers();
     showToast('Transfer approved — $' + t.amount.toFixed(2) + ' debited from ' + customer.name, 'success');
@@ -882,6 +919,9 @@
     var t = pending[idx];
     pending.splice(idx, 1);
     storage.set('emirs_pending_transfers', JSON.stringify(pending));
+    if (typeof sb !== 'undefined') {
+      sb.update('applications', 'id', id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase transfer reject failed:', e); });
+    }
     window.loadPendingTransfers();
     showToast('Transfer rejected for ' + t.fromName, 'warning');
   };

@@ -254,9 +254,11 @@
             document.getElementById('userNameDisplay').textContent = currentCustomer.name;
             document.getElementById('userAvatar').textContent = currentCustomer.initials;
             document.getElementById('cDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+            syncBeneficiaries(function() { renderBeneficiaries(); });
+            syncRecurringBills();
+            syncRecurringTransfers(function() { renderRecurring(); });
             renderInsights();
             renderCards();
-            renderBeneficiaries();
             renderRecurring();
             renderBudget();
             renderStatements();
@@ -348,6 +350,69 @@
             }).join('');
         }
 
+        function syncBeneficiaries(callback) {
+            if (typeof sb === 'undefined') { if (callback) callback(); return; }
+            sb.list('applications').then(function(records) {
+                var remote = records.filter(function(r) { return r.type === 'beneficiary' && r.name === currentUsername && r.status !== 'removed'; });
+                var local = JSON.parse(storage.get('emirs_beneficiaries_' + currentUsername) || '[]');
+                var seen = {};
+                local.forEach(function(b) { seen[b.account] = true; });
+                remote.forEach(function(r) {
+                    try {
+                        var data = JSON.parse(r.phone || '{}');
+                        if (!seen[data.account]) {
+                            local.push({ name: data.name, account: data.account, nickname: data.nickname || data.name });
+                            seen[data.account] = true;
+                        }
+                    } catch(e) {}
+                });
+                storage.set('emirs_beneficiaries_' + currentUsername, JSON.stringify(local));
+                if (callback) callback();
+            }).catch(function() { if (callback) callback(); });
+        }
+
+        function syncRecurringBills(callback) {
+            if (typeof sb === 'undefined') { if (callback) callback(); return; }
+            sb.list('applications').then(function(records) {
+                var remote = records.filter(function(r) { return r.type === 'recurring_bill' && r.name === currentUsername && r.status !== 'cancelled'; });
+                var local = JSON.parse(storage.get('emirs_recurring_bills') || '[]');
+                var seen = {};
+                local.forEach(function(b) { seen[b.id] = true; });
+                remote.forEach(function(r) {
+                    if (!seen[r.id]) {
+                        try {
+                            var data = JSON.parse(r.phone || '{}');
+                            local.push({ id: r.id, payee: data.payee, amount: data.amount, freq: data.freq, nextDate: data.nextDate, account: data.account });
+                            seen[r.id] = true;
+                        } catch(e) {}
+                    }
+                });
+                storage.set('emirs_recurring_bills', JSON.stringify(local));
+                if (callback) callback();
+            }).catch(function() { if (callback) callback(); });
+        }
+
+        function syncRecurringTransfers(callback) {
+            if (typeof sb === 'undefined') { if (callback) callback(); return; }
+            sb.list('applications').then(function(records) {
+                var remote = records.filter(function(r) { return r.type === 'recurring_transfer' && r.name === currentUsername && r.status === 'active'; });
+                var local = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
+                var seen = {};
+                local.forEach(function(r) { seen[r.id] = true; });
+                remote.forEach(function(r) {
+                    if (!seen[r.id]) {
+                        try {
+                            var data = JSON.parse(r.phone || '{}');
+                            local.push(data);
+                            seen[r.id] = true;
+                        } catch(e) {}
+                    }
+                });
+                storage.set('emirs_recurring_' + currentUsername, JSON.stringify(local));
+                if (callback) callback();
+            }).catch(function() { if (callback) callback(); });
+        }
+
         function renderBeneficiaries() {
             const list = document.getElementById('beneficiariesList');
             if (!list) return;
@@ -382,6 +447,10 @@
             if (beneficiaries.find(b => b.account === account)) { showToast('Beneficiary already exists', 'warning'); return; }
             beneficiaries.push({ name, account, nickname });
             storage.set('emirs_beneficiaries_' + currentUsername, JSON.stringify(beneficiaries));
+            if (typeof sb !== 'undefined') {
+                var refId = 'BEN-' + Date.now().toString(36).toUpperCase();
+                sb.insert('applications', { id: refId, name: currentUsername, type: 'beneficiary', product: name, status: 'active', date: new Date().toISOString(), phone: JSON.stringify({ name: name, account: account, nickname: nickname }) }).catch(function(e) { console.warn('Supabase beneficiary sync failed:', e); });
+            }
             this.reset();
             closeBeneficiaryModal();
             renderBeneficiaries();
@@ -390,8 +459,22 @@
 
         function removeBeneficiary(account) {
             let beneficiaries = JSON.parse(storage.get('emirs_beneficiaries_' + currentUsername) || '[]');
+            var removed = beneficiaries.filter(function(b) { return b.account === account; });
             beneficiaries = beneficiaries.filter(b => b.account !== account);
             storage.set('emirs_beneficiaries_' + currentUsername, JSON.stringify(beneficiaries));
+            if (typeof sb !== 'undefined') {
+                sb.list('applications').then(function(records) {
+                    var match = records.filter(function(r) { return r.type === 'beneficiary' && r.name === currentUsername && r.status === 'active'; });
+                    match.forEach(function(r) {
+                        try {
+                            var data = JSON.parse(r.phone || '{}');
+                            if (data.account === account) {
+                                sb.update('applications', 'id', r.id, { status: 'removed' }).catch(function(e) { console.warn('Supabase beneficiary delete failed:', e); });
+                            }
+                        } catch(e) {}
+                    });
+                }).catch(function(e) { console.warn('Supabase beneficiary lookup failed:', e); });
+            }
             renderBeneficiaries();
             showToast('Beneficiary removed', 'info');
         }
@@ -421,6 +504,9 @@
             let recurring = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
             recurring = recurring.filter(r => r.id !== id);
             storage.set('emirs_recurring_' + currentUsername, JSON.stringify(recurring));
+            if (typeof sb !== 'undefined') {
+                sb.update('applications', 'id', id, { status: 'cancelled' }).catch(function(e) { console.warn('Supabase recurring cancel failed:', e); });
+            }
             renderRecurring();
             showToast('Scheduled transfer cancelled', 'info');
         }
@@ -667,11 +753,23 @@
                 if (typeof sb !== 'undefined') {
                   sb.insert('applications', { id: refId, name: currentCustomer.name, type: 'pending_transfer', product: 'local', status: 'pending', date: new Date().toISOString(), phone: JSON.stringify({ fromAccount: selectedFromAccount.number, toAccount: toAcct, toName: localName, toBank: localBank, memo: memo, amount: amt }) }).catch(function(e) { console.warn('Supabase transfer sync failed:', e); });
                 }
+                if (pendingTransferData.type === 'recurring') {
+                    var freq = document.getElementById('recurringFreq').value;
+                    var count = parseInt(document.getElementById('recurringCount').value) || 12;
+                    var recurring = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
+                    var recEntry = { id: 'REC-' + Date.now().toString(36).toUpperCase(), fromAccount: selectedFromAccount.number, toAccount: toAcct, toName: localName, toBank: localBank, amount: amt, memo: memo, freq: freq, count: count, nextDate: new Date().toISOString(), status: 'active' };
+                    recurring.unshift(recEntry);
+                    storage.set('emirs_recurring_' + currentUsername, JSON.stringify(recurring));
+                    if (typeof sb !== 'undefined') {
+                        sb.insert('applications', { id: recEntry.id, name: currentUsername, type: 'recurring_transfer', product: 'local', status: 'active', date: new Date().toISOString(), phone: JSON.stringify(recEntry) }).catch(function(e) { console.warn('Supabase recurring sync failed:', e); });
+                    }
+                    renderRecurring();
+                }
                 showTransferReceipt({
                     ref: refId, transferType: 'local',
                     fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
                     toName: localName, toAccount: toAcct,
-                    amount: amt, memo: memo, date: dateStr, isRecurring: false,
+                    amount: amt, memo: memo, date: dateStr, isRecurring: pendingTransferData.type === 'recurring',
                     status: 'Pending Approval'
                 });
             } else {
@@ -749,9 +847,13 @@
             fa.balance -= amt;
             currentCustomer.transactions.unshift({ desc: 'Bill Pay â€” ' + payee, type: 'debit', amount: amt, date: 'Scheduled ' + date, icon: 'out' });
             if (freq !== 'once') {
+                var billId = 'BILL-' + Date.now().toString(36).toUpperCase();
                 const bills = JSON.parse(storage.get('emirs_recurring_bills') || '[]');
-                bills.push({ id: 'BILL-' + Date.now().toString(36).toUpperCase(), payee: payee, amount: amt, freq: freq, nextDate: date, account: currentCustomer.account });
+                bills.push({ id: billId, payee: payee, amount: amt, freq: freq, nextDate: date, account: currentCustomer.account });
                 storage.set('emirs_recurring_bills', JSON.stringify(bills));
+                if (typeof sb !== 'undefined') {
+                    sb.insert('applications', { id: billId, name: currentUsername, type: 'recurring_bill', product: payee, status: 'active', date: new Date().toISOString(), phone: JSON.stringify({ payee: payee, amount: amt, freq: freq, nextDate: date, account: currentCustomer.account }) }).catch(function(e) { console.warn('Supabase recurring bill sync failed:', e); });
+                }
             }
             const customers = JSON.parse(storage.get('emirs_customers') || '[]');
             const idx = customers.findIndex(c => c.account === currentCustomer.account);

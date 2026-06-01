@@ -53,6 +53,16 @@ var sb = {
     });
   },
 
+  delete: function(table, idColumn, idValue) {
+    return fetch(SUPABASE_URL + '/rest/v1/' + table + '?' + idColumn + '=eq.' + encodeURIComponent(idValue), {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    }).then(function(r) {
+      if (!r.ok) throw new Error('Supabase delete failed: ' + r.status);
+      return true;
+    });
+  },
+
   upsert: function(table, data, idColumn) {
     return fetch(SUPABASE_URL + '/rest/v1/' + table, {
       method: 'POST',

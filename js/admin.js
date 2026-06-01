@@ -189,6 +189,7 @@
     renderPendingApprovals();
     renderChart('deposits');
     initChartTabs();
+    setTimeout(function() { window.loadPendingTransfers(); }, 100);
   }
 
   function renderRecentTransactions() {
@@ -732,6 +733,10 @@
       var dob = raw.dob || raw.DOB || raw.dateOfBirth || 'N/A';
       var status = raw.status || 'active';
 
+      var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+      var foundUser = null;
+      for (var u in users) { if (users[u].account === accountNum) { foundUser = u; break; } }
+
       var body = document.getElementById('customerDetailBody');
       if (body) {
         body.innerHTML =
@@ -743,13 +748,143 @@
           '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + dob + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-' + (status === 'active' ? 'success' : 'warning') + '">' + status + '</span></span></div>' +
           (raw.accounts && raw.accounts.length > 1 ? '<div class="detail-row"><span class="detail-label">Other Accounts</span><span class="detail-value">' + raw.accounts.slice(1).map(function(a) { return a.number + ' ($' + (parseFloat(a.balance) || 0).toLocaleString() + ')'; }).join(', ') + '</span></div>' : '') +
-          '<div class="detail-row"><span class="detail-label">Approved On</span><span class="detail-value">' + new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</span></div>';
+          (foundUser ? '<div class="detail-row"><span class="detail-label">Online Banking</span><span class="detail-value" style="color:var(--success)"><i class="fas fa-check-circle"></i> Username: ' + foundUser + '</span></div>' : '<div class="detail-row"><span class="detail-label">Online Banking</span><span class="detail-value" style="color:var(--text-secondary)">Not enrolled</span></div>') +
+          '<div class="detail-row"><span class="detail-label">Approved On</span><span class="detail-value">' + new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</span></div>' +
+          '<div class="detail-actions" style="display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);flex-wrap:wrap">' +
+          (foundUser ? '<button class="btn btn-primary btn-sm" onclick="resetCustomerPassword(\'' + foundUser.replace(/'/g, "\\'") + '\')"><i class="fas fa-key"></i> Reset Password</button>' : '') +
+          '<button class="btn btn-outline btn-sm" onclick="viewCustomerDashboard(\'' + accountNum.replace(/'/g, "\\'") + '\',\'' + name.replace(/'/g, "\\'") + '\')"><i class="fas fa-external-link-alt"></i> View Dashboard</button>' +
+          '</div>';
       }
       document.getElementById('customerDetailModal')?.classList.add('active');
     });
   };
 
   window.showAddUser = function() { showToast('Add user feature coming soon', 'info'); };
+
+  window.resetCustomerPassword = function(username) {
+    var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+    if (!users[username]) { showToast('User not found', 'error'); return; }
+    var modal = document.getElementById('resetPwModal');
+    if (!modal) return;
+    modal.dataset.targetUser = username;
+    document.getElementById('resetPwUsername').textContent = username;
+    document.getElementById('newPasswordInput').value = '';
+    document.getElementById('resetPwErrorMsg').style.display = 'none';
+    modal.classList.add('active');
+  };
+
+  window.confirmResetPassword = function() {
+    var username = document.getElementById('resetPwModal')?.dataset.targetUser;
+    if (!username) { showToast('No user selected', 'error'); return; }
+    var newPw = document.getElementById('newPasswordInput').value.trim();
+    if (!newPw || newPw.length < 6) {
+      document.getElementById('resetPwErrorMsg').textContent = 'Password must be at least 6 characters';
+      document.getElementById('resetPwErrorMsg').style.display = 'block';
+      return;
+    }
+    var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+    if (!users[username]) { showToast('User not found', 'error'); return; }
+    users[username].password = newPw;
+    storage.set('emirs_online_users', JSON.stringify(users));
+    if (typeof sb !== 'undefined') {
+      sb.update('enrolled_users', 'username', username, { password: newPw }).catch(function(e) {
+        console.warn('Supabase password update failed:', e);
+      });
+    }
+    closeModal('resetPwModal');
+    showToast('Password reset for ' + username + ' to: ' + newPw, 'success');
+  };
+
+  window.viewCustomerDashboard = function(accountNum, customerName) {
+    closeModal('customerDetailModal');
+    var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+    var foundUser = null;
+    for (var u in users) {
+      if (users[u].account === accountNum) { foundUser = u; break; }
+    }
+    if (!foundUser) {
+      showToast(customerName + ' has not enrolled in online banking yet.', 'warning');
+      return;
+    }
+    var creds = users[foundUser];
+    sessionStorage.setItem('emirs_admin_impersonate', JSON.stringify({
+      username: foundUser,
+      password: creds.password,
+      account: creds.account
+    }));
+    window.open('dashboard.html?impersonate=' + foundUser, '_blank');
+    showToast('Dashboard opened for ' + customerName, 'success');
+  };
+
+  window.loadPendingTransfers = function() {
+    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    var container = document.getElementById('pendingTransfersList');
+    if (!container) return;
+    if (pending.length === 0) {
+      container.innerHTML = '<div class="empty-state" style="text-align:center;padding:24px;color:var(--text-secondary)"><i class="fas fa-check-circle" style="font-size:2rem;margin-bottom:12px;display:block;color:var(--success)"></i>No pending transfers</div>';
+      return;
+    }
+    container.innerHTML = pending.map(function(t) {
+      var date = new Date(t.date);
+      var dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return '<div class="transfer-item" style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
+        '<div style="flex:1;min-width:180px">' +
+        '<strong style="display:block">' + t.fromName + '</strong>' +
+        '<span style="font-size:0.78rem;color:var(--text-secondary)">' + t.fromAccount + ' → ' + (t.toName || t.intlRecipientName || 'Unknown') + '</span>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+        '<span style="font-weight:700;color:var(--error)">-$' + (t.amount || 0).toLocaleString(undefined, {minimumFractionDigits:2}) + '</span>' +
+        '<span style="display:block;font-size:0.72rem;color:var(--text-secondary)">' + dateStr + '</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;align-items:center">' +
+        '<button class="btn btn-sm btn-success" onclick="approvePendingTransfer(\'' + t.id.replace(/'/g, "\\'") + '\')"><i class="fas fa-check"></i></button>' +
+        '<button class="btn btn-sm btn-danger" onclick="rejectPendingTransfer(\'' + t.id.replace(/'/g, "\\'") + '\')"><i class="fas fa-times"></i></button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+  };
+
+  window.approvePendingTransfer = function(id) {
+    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    var idx = pending.findIndex(function(t) { return t.id === id; });
+    if (idx === -1) { showToast('Transfer not found', 'error'); return; }
+    var t = pending[idx];
+    var allCustomers = JSON.parse(storage.get('emirs_customers') || '[]');
+    var custIdx = allCustomers.findIndex(function(c) { return c.account === t.fromAccount; });
+    if (custIdx === -1) { showToast('Customer account not found', 'error'); return; }
+    var customer = allCustomers[custIdx];
+    var fa = customer.accounts.find(function(a) { return a.number === t.fromAccount || a.id === t.fromAccountId; });
+    if (!fa) { showToast('Source account not found on customer', 'error'); return; }
+    if (fa.balance < t.amount) { showToast('Insufficient balance to approve this transfer', 'error'); return; }
+    fa.balance -= t.amount;
+    var now = new Date();
+    var dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    if (!customer.transactions) customer.transactions = [];
+    customer.transactions.unshift({
+      desc: t.memo || 'Transfer to ' + (t.toName || t.intlRecipientName || 'Recipient'),
+      type: 'debit', amount: t.amount, date: dateStr, icon: 'out'
+    });
+    allCustomers[custIdx] = customer;
+    storage.set('emirs_customers', JSON.stringify(allCustomers));
+    pending.splice(idx, 1);
+    storage.set('emirs_pending_transfers', JSON.stringify(pending));
+    if (typeof sb !== 'undefined') {
+      sb.update('customers', 'account', customer.account, customer).catch(function(e) { console.warn('Supabase customer update failed:', e); });
+    }
+    window.loadPendingTransfers();
+    showToast('Transfer approved — $' + t.amount.toFixed(2) + ' debited from ' + customer.name, 'success');
+  };
+
+  window.rejectPendingTransfer = function(id) {
+    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    var idx = pending.findIndex(function(t) { return t.id === id; });
+    if (idx === -1) { showToast('Transfer not found', 'error'); return; }
+    var t = pending[idx];
+    pending.splice(idx, 1);
+    storage.set('emirs_pending_transfers', JSON.stringify(pending));
+    window.loadPendingTransfers();
+    showToast('Transfer rejected for ' + t.fromName, 'warning');
+  };
 
   function renderBranches() {
     var grid = document.getElementById('branchesGrid');

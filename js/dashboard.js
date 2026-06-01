@@ -472,7 +472,7 @@
         function getPendingTxns() {
             const all = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
             return all.filter(p => p.fromAccount === currentCustomer.account).map(p => ({
-                desc: 'Transfer to ' + p.toName + ' â€” Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime()
+                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime()
             }));
         }
 
@@ -655,12 +655,6 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-            fa.balance -= amt;
-            currentCustomer.transactions.unshift({ desc: memo || (transferType === 'international' ? 'International Transfer' : 'Transfer'), type: 'debit', amount: amt, date: dateStr, icon: 'out' });
-            const allCustomers = JSON.parse(storage.get('emirs_customers') || '[]');
-            const custIdx = allCustomers.findIndex(c => c.account === currentCustomer.account);
-            if (custIdx >= 0) { allCustomers[custIdx] = currentCustomer; storage.set('emirs_customers', JSON.stringify(allCustomers)); }
-
             if (transferType === 'local') {
                 const toAcct = document.getElementById('toAccount').value.trim();
                 const all = getAllCustomers();
@@ -672,7 +666,8 @@
                     ref: refId, transferType: 'local',
                     fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
                     toName: recipient.name, toAccount: toAcct,
-                    amount: amt, memo: memo, date: dateStr, isRecurring: false
+                    amount: amt, memo: memo, date: dateStr, isRecurring: false,
+                    status: 'Pending Approval'
                 });
             } else {
                 const intlName = document.getElementById('intlRecipientName').value.trim();
@@ -699,10 +694,11 @@
                 showTransferReceipt({
                     ref: refId, transferType: 'international',
                     fromName: currentCustomer.name, fromAccount: selectedFromAccount.number,
-                    toName: intlName + ' (' + intlIban + ')', toAccount: intlSwift + ' Â· ' + intlBank,
+                    toName: intlName + ' (' + intlIban + ')', toAccount: intlSwift + ' · ' + intlBank,
                     amount: amt, memo: memo, date: dateStr, isRecurring: false,
                     intlRecipientName: intlName, intlSwift: intlSwift, intlBankName: intlBank,
-                    intlCountry: countryNames[intlCountry] || intlCountry, intlCurrency: intlCurrency
+                    intlCountry: countryNames[intlCountry] || intlCountry, intlCurrency: intlCurrency,
+                    status: 'Pending Approval'
                 });
             }
             renderAccounts(); renderRecentTxns(); renderFullTxns(); populateTransferAccounts();
@@ -978,4 +974,34 @@
             msgs.scrollTop = msgs.scrollHeight;
         }); } catch(e) { console.warn('chat init:', e); }
         try { document.getElementById('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('chatSend').click(); }); } catch(e) { console.warn('chat input init:', e); }
+
+        // Admin impersonation auto-login
+        try {
+          var imp = sessionStorage.getItem('emirs_admin_impersonate');
+          var urlImp = new URLSearchParams(window.location.search).get('impersonate');
+          if (imp && urlImp) {
+            var data = JSON.parse(imp);
+            if (data.username === urlImp) {
+              var allCust = getAllCustomers();
+              var cust = allCust.find(function(c) { return c.account === data.account; });
+              if (cust && enrolledUsers[data.username]) {
+                var user = enrolledUsers[data.username];
+                currentCustomer = cust;
+                currentUsername = data.username;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('bankDashboard').style.display = 'flex';
+                document.getElementById('bankDashboard').setAttribute('data-impersonated', 'true');
+                var banner = document.createElement('div');
+                banner.id = 'impersonateBanner';
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#2563eb;color:#fff;text-align:center;padding:8px 16px;font-size:0.82rem;z-index:10000;display:flex;align-items:center;justify-content:center;gap:12px';
+                banner.innerHTML = '<i class="fas fa-user-shield"></i> Admin Viewing: ' + cust.name + ' <button onclick="document.getElementById(\'impersonateBanner\').remove();sessionStorage.removeItem(\'emirs_admin_impersonate\');window.close()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:0.78rem">Exit</button>';
+                document.body.prepend(banner);
+                document.body.style.paddingTop = '42px';
+                initDashboard();
+                initSessionTimer();
+                refreshInterval = setInterval(refreshCustomerData, 15000);
+              }
+            }
+          }
+        } catch(e) { console.warn('impersonation init:', e); }
     

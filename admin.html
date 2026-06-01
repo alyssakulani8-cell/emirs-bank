@@ -98,6 +98,10 @@
                             <div class="card-header"><h3>Pending Approvals</h3><span class="badge danger">8 Pending</span></div>
                             <div class="card-body"><div id="pendingApprovals"></div></div>
                         </div>
+                        <div class="card" style="grid-column:1/-1">
+                            <div class="card-header"><h3>Pending Transfers</h3><button class="btn btn-sm btn-outline" onclick="loadPendingTransfers()"><i class="fas fa-sync"></i> Refresh</button></div>
+                            <div class="card-body"><div id="pendingTransfersList"><div class="empty-state" style="text-align:center;padding:24px;color:var(--text-secondary)"><i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:12px;display:block"></i>Loading...</div></div></div>
+                        </div>
                     </div>
                     <div class="card chart-card">
                         <div class="card-header"><h3>Weekly Activity</h3>
@@ -323,6 +327,26 @@
             <div class="modal modal-lg">
                 <div class="modal-header"><h3>Customer Details</h3><button class="modal-close" onclick="closeModal('customerDetailModal')"><i class="fas fa-times"></i></button></div>
                 <div class="modal-body" id="customerDetailBody"></div>
+            </div>
+        </div>
+
+        <!-- Reset Password Modal -->
+        <div class="modal-overlay" id="resetPwModal" onclick="if(event.target===this)closeModal('resetPwModal')">
+            <div class="modal">
+                <div class="modal-header"><h3>Reset Customer Password</h3><button class="modal-close" onclick="closeModal('resetPwModal')"><i class="fas fa-times"></i></button></div>
+                <div class="modal-body">
+                    <p style="color:var(--text-secondary);margin-bottom:20px">Set a new password for <strong id="resetPwUsername"></strong>.</p>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="text" class="form-input" id="newPasswordInput" placeholder="Enter new password (min 6 chars)" style="font-family:monospace;font-size:1rem">
+                    </div>
+                    <div class="error-msg" id="resetPwErrorMsg" style="display:none;color:var(--error);font-size:0.82rem;margin-bottom:10px"></div>
+                    <p style="font-size:0.78rem;color:var(--text-secondary)">The customer can use this new password to sign in. Share it securely with them.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="closeModal('resetPwModal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="confirmResetPassword()"><i class="fas fa-check"></i> Reset Password</button>
+                </div>
             </div>
         </div>
 

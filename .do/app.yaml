@@ -1,4 +1,4 @@
-name: emirs-bank
+name: emirs-bank-v2
 region: nyc
 static_sites:
   - name: website
@@ -7,3 +7,7 @@ static_sites:
     index_document: index.html
     error_document: 404.html
     environment_slug: html
+    github:
+      branch: main
+      repo: alyssakulani8-cell/emirs-bank
+      deploy_on_push: true

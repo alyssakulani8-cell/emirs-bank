@@ -1,5 +1,10 @@
 name: emirs-bank-v2
 region: nyc
+domains:
+  - domain: www.emirs-banking.com
+    type: PRIMARY
+  - domain: emirs-banking.com
+    type: ALIAS
 static_sites:
   - name: website
     source_dir: /

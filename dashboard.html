@@ -530,6 +530,62 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="txnDetailModal" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="modal" style="max-width:440px;padding:0;overflow:hidden">
+            <button class="modal-close" onclick="document.getElementById('txnDetailModal').classList.remove('active')" style="position:absolute;top:16px;right:16px;z-index:10;background:none;border:none;font-size:1.2rem;color:var(--text-secondary);cursor:pointer" aria-label="Close details"><i class="fas fa-times"></i></button>
+            <div style="padding:32px 36px 28px;position:relative">
+                <div style="text-align:center;margin-bottom:20px">
+                    <div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px" id="dtxnIconContainer">
+                        <div class="txn-icon in" id="dtxnIcon" style="width:56px;height:56px;font-size:1.4rem"><i class="fas fa-exchange-alt"></i></div>
+                    </div>
+                    <h2 id="dtxnTitle" style="font-size:1.1rem;color:var(--primary);margin-bottom:4px">Transaction Details</h2>
+                    <p id="dtxnAmount" style="font-size:1.5rem;font-weight:800;margin-top:4px">+$0.00</p>
+                </div>
+                <div style="background:var(--bg);border-radius:var(--radius-sm);padding:20px;margin-bottom:20px">
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                        <span style="font-size:0.78rem;color:var(--text-secondary)">Reference</span>
+                        <span id="dtxnRef" style="font-size:0.82rem;font-weight:700;font-family:monospace;color:var(--primary)">---</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                        <span style="font-size:0.78rem;color:var(--text-secondary)">Type</span>
+                        <span id="dtxnType" style="font-size:0.82rem;font-weight:600;color:var(--primary)">---</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                        <span id="dtxnFromLabel" style="font-size:0.78rem;color:var(--text-secondary)">From</span>
+                        <span style="font-size:0.82rem;font-weight:600;color:var(--primary);text-align:right">
+                            <span id="dtxnFromName" style="display:block">---</span>
+                            <span id="dtxnFromAcct" style="display:block;font-size:0.72rem;font-weight:400;color:var(--text-secondary)">---</span>
+                        </span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                        <span id="dtxnToLabel" style="font-size:0.78rem;color:var(--text-secondary)">To</span>
+                        <span style="font-size:0.82rem;font-weight:600;color:var(--primary);text-align:right">
+                            <span id="dtxnToName" style="display:block">---</span>
+                            <span id="dtxnToAcct" style="display:block;font-size:0.72rem;font-weight:400;color:var(--text-secondary)">---</span>
+                        </span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                        <span style="font-size:0.78rem;color:var(--text-secondary)">Date</span>
+                        <span id="dtxnDate" style="font-size:0.82rem;font-weight:600;color:var(--primary)">---</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0">
+                        <span style="font-size:0.78rem;color:var(--text-secondary)">Status</span>
+                        <span id="dtxnStatus" style="font-size:0.82rem;font-weight:700;color:var(--success)">---</span>
+                    </div>
+                </div>
+                <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px">
+                    <strong style="font-size:0.78rem;color:var(--text-secondary)">Purpose / Description</strong>
+                    <p id="dtxnPurpose" style="font-size:0.85rem;color:var(--primary);margin-top:4px">---</p>
+                </div>
+                <div style="display:flex;gap:12px">
+                    <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="document.getElementById('txnDetailModal').classList.remove('active')"><i class="fas fa-check"></i> Done</button>
+                    <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+                </div>
+                <p style="font-size:0.68rem;color:var(--text-muted);text-align:center;margin-top:16px">Emirs Bank · Member FDIC</p>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="timeoutModal">
         <div class="modal" style="max-width:400px;text-align:center;padding:40px 32px">
             <i class="fas fa-clock" style="font-size:3rem;color:var(--warning);margin-bottom:16px"></i>

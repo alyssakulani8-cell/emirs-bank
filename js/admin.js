@@ -464,10 +464,10 @@
       html += '<div style="margin-top:12px">';
       html += '<label style="display:block;font-size:0.82rem;font-weight:600;color:var(--primary);margin-bottom:6px">Allocate Account Number</label>';
       html += '<div style="display:flex;gap:8px;align-items:center">';
-      html += '<input type="text" id="allocAccountNum" placeholder="e.g. 10482917 or Generate" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:monospace">';
+      html += '<input type="text" id="allocAccountNum" placeholder="e.g. 1048291792 or Generate" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:monospace">';
       html += '<button class="btn btn-sm btn-outline" onclick="generateAccountNumber()" style="white-space:nowrap"><i class="fas fa-sync"></i> Generate</button>';
       html += '</div>';
-      html += '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Enter an 8-digit account number or click Generate</div>';
+      html += '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Enter a 10-digit account number or click Generate</div>';
       html += '</div>';
     }
 
@@ -485,7 +485,7 @@
   };
 
   window.generateAccountNumber = function() {
-    var num = '10' + String(Math.floor(100000 + Math.random() * 900000));
+    var num = '10' + String(Math.floor(10000000 + Math.random() * 90000000));
     document.getElementById('allocAccountNum').value = num;
   };
 
@@ -526,10 +526,13 @@
       if (deposit > 0) {
         customer.transactions.push({
           desc: 'Initial Deposit',
-          type: 'credit',
-          amount: deposit,
+          type: 'credit', amount: deposit,
           date: new Date().toISOString().split('T')[0],
-          icon: 'in'
+          icon: 'in',
+          senderName: 'Emirs Bank', senderAccount: 'EMIRS-HO',
+          receiverName: app.name, receiverAccount: accountNumber,
+          purpose: 'Initial Account Deposit', reference: 'DEP-' + Date.now().toString(36).toUpperCase(),
+          status: 'completed', timestamp: new Date().toISOString()
         });
       }
 
@@ -898,7 +901,15 @@
     if (!customer.transactions) customer.transactions = [];
     customer.transactions.unshift({
       desc: t.memo || 'Transfer to ' + (t.toName || t.intlRecipientName || 'Recipient'),
-      type: 'debit', amount: t.amount, date: dateStr, icon: 'out'
+      type: 'debit', amount: t.amount, date: dateStr, icon: 'out',
+      senderName: t.fromName || customer.name,
+      senderAccount: t.fromAccount || '',
+      receiverName: t.toName || t.intlRecipientName || 'Recipient',
+      receiverAccount: t.toAccount || t.intlBankName || '',
+      purpose: t.memo || 'Transfer',
+      reference: t.id || ('TXN-' + Date.now().toString(36).toUpperCase()),
+      status: 'completed',
+      timestamp: new Date().toISOString()
     });
     allCustomers[custIdx] = customer;
     storage.set('emirs_customers', JSON.stringify(allCustomers));

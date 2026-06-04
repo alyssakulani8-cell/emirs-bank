@@ -6,34 +6,34 @@
                 { id: 'a2', type: 'High-Yield Savings', number: '****2190', balance: 45200.00 },
                 { id: 'a3', type: 'Platinum Credit Card', number: '****7712', balance: -2340.00 }
             ], transactions: [
-                { desc: 'Salary Deposit', type: 'credit', amount: 5200.00, date: 'Today', icon: 'in' },
-                { desc: 'Whole Foods Market', type: 'debit', amount: 87.43, date: 'Today', icon: 'out' },
-                { desc: 'Transfer to Savings', type: 'debit', amount: 500.00, date: 'Yesterday', icon: 'transfer' },
-                { desc: 'Amazon.com', type: 'debit', amount: 129.99, date: 'Yesterday', icon: 'out' },
-                { desc: 'Dividend Payment', type: 'credit', amount: 34.50, date: '2 days ago', icon: 'in' },
-                { desc: 'Electric Bill', type: 'debit', amount: 142.00, date: '2 days ago', icon: 'out' },
-                { desc: 'Starbucks', type: 'debit', amount: 5.75, date: '3 days ago', icon: 'out' },
-                { desc: 'Interest Payment', type: 'credit', amount: 12.84, date: '5 days ago', icon: 'in' },
+                { desc: 'Salary Deposit', type: 'credit', amount: 5200.00, date: 'Today', icon: 'in', senderName: 'Emirs Bank Payroll', senderAccount: 'EMIRS-PAYROLL', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Monthly Salary', reference: 'TXN-A1B2C3', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Whole Foods Market', type: 'debit', amount: 87.43, date: 'Today', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Whole Foods Market', receiverAccount: '****7001', purpose: 'Grocery Purchase', reference: 'TXN-D4E5F6', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Transfer to Savings', type: 'debit', amount: 500.00, date: 'Yesterday', icon: 'transfer', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'John Smith', receiverAccount: '****2190', purpose: 'Savings Transfer', reference: 'TXN-G7H8I9', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Amazon.com', type: 'debit', amount: 129.99, date: 'Yesterday', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Amazon.com', receiverAccount: 'AMZ-US', purpose: 'Online Shopping', reference: 'TXN-J0K1L2', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Dividend Payment', type: 'credit', amount: 34.50, date: '2 days ago', icon: 'in', senderName: 'Vanguard Investments', senderAccount: 'VG-123456', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Quarterly Dividend', reference: 'TXN-M3N4O5', status: 'completed', timestamp: new Date(Date.now() - 172800000).toISOString() },
+                { desc: 'Electric Bill', type: 'debit', amount: 142.00, date: '2 days ago', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Georgia Power Co', receiverAccount: '****5502', purpose: 'Monthly Electric Bill', reference: 'TXN-P6Q7R8', status: 'completed', timestamp: new Date(Date.now() - 172800000).toISOString() },
+                { desc: 'Starbucks', type: 'debit', amount: 5.75, date: '3 days ago', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Starbucks #4521', receiverAccount: '****3009', purpose: 'Coffee Purchase', reference: 'TXN-S9T0U1', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
+                { desc: 'Interest Payment', type: 'credit', amount: 12.84, date: '5 days ago', icon: 'in', senderName: 'Emirs Bank', senderAccount: 'EMIRS-INT', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Savings Interest', reference: 'TXN-V2W3X4', status: 'completed', timestamp: new Date(Date.now() - 432000000).toISOString() },
             ]},
             { account: '****6678', ssn: '5678', dob: '1990-11-22', email: 'sarah@email.com', name: 'Sarah Johnson', initials: 'SJ', accounts: [
                 { id: 'b1', type: 'Premium Savings', number: '****6678', balance: 89200.75 },
                 { id: 'b2', type: 'Basic Checking', number: '****3345', balance: 3250.00 },
             ], transactions: [
-                { desc: 'Paycheck Deposit', type: 'credit', amount: 3800.00, date: 'Today', icon: 'in' },
-                { desc: 'Target', type: 'debit', amount: 156.32, date: 'Today', icon: 'out' },
-                { desc: 'Auto Transfer to Savings', type: 'debit', amount: 800.00, date: 'Yesterday', icon: 'transfer' },
-                { desc: 'Netflix', type: 'debit', amount: 15.99, date: 'Yesterday', icon: 'out' },
-                { desc: 'Shell Gas', type: 'debit', amount: 42.50, date: '3 days ago', icon: 'out' },
+                { desc: 'Paycheck Deposit', type: 'credit', amount: 3800.00, date: 'Today', icon: 'in', senderName: 'Acme Corp Payroll', senderAccount: 'ACME-PR', receiverName: 'Sarah Johnson', receiverAccount: '****6678', purpose: 'Monthly Salary', reference: 'TXN-B2C3D4', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Target', type: 'debit', amount: 156.32, date: 'Today', icon: 'out', senderName: 'Sarah Johnson', senderAccount: '****6678', receiverName: 'Target Stores', receiverAccount: '****4411', purpose: 'Retail Purchase', reference: 'TXN-E5F6G7', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Auto Transfer to Savings', type: 'debit', amount: 800.00, date: 'Yesterday', icon: 'transfer', senderName: 'Sarah Johnson', senderAccount: '****6678', receiverName: 'Sarah Johnson', receiverAccount: '****3345', purpose: 'Auto Savings Transfer', reference: 'TXN-H8I9J0', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Netflix', type: 'debit', amount: 15.99, date: 'Yesterday', icon: 'out', senderName: 'Sarah Johnson', senderAccount: '****6678', receiverName: 'Netflix Inc', receiverAccount: 'NFLX-USA', purpose: 'Monthly Subscription', reference: 'TXN-K1L2M3', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Shell Gas', type: 'debit', amount: 42.50, date: '3 days ago', icon: 'out', senderName: 'Sarah Johnson', senderAccount: '****6678', receiverName: 'Shell Oil Co', receiverAccount: '****8807', purpose: 'Fuel Purchase', reference: 'TXN-N4O5P6', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
             ]},
             { account: '****7231', ssn: '9012', dob: '2000-03-08', email: 'mike@email.com', name: 'Michael Chen', initials: 'MC', accounts: [
                 { id: 'c1', type: 'Basic Checking', number: '****7231', balance: 8750.00 },
                 { id: 'c2', type: 'Student Banking', number: '****8902', balance: 2340.00 },
             ], transactions: [
-                { desc: 'Part-time Job Deposit', type: 'credit', amount: 1200.00, date: 'Today', icon: 'in' },
-                { desc: 'Campus Dining', type: 'debit', amount: 12.50, date: 'Today', icon: 'out' },
-                { desc: 'Textbook Purchase', type: 'debit', amount: 89.99, date: 'Yesterday', icon: 'out' },
-                { desc: 'Transfer to Savings', type: 'debit', amount: 200.00, date: 'Yesterday', icon: 'transfer' },
-                { desc: 'Spotify', type: 'debit', amount: 9.99, date: '3 days ago', icon: 'out' },
+                { desc: 'Part-time Job Deposit', type: 'credit', amount: 1200.00, date: 'Today', icon: 'in', senderName: 'University of Tech', senderAccount: 'UOT-PAYROLL', receiverName: 'Michael Chen', receiverAccount: '****7231', purpose: 'Student Employment', reference: 'TXN-Q7R8S9', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Campus Dining', type: 'debit', amount: 12.50, date: 'Today', icon: 'out', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'UOT Dining Services', receiverAccount: '****2204', purpose: 'Meal Purchase', reference: 'TXN-T0U1V2', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Textbook Purchase', type: 'debit', amount: 89.99, date: 'Yesterday', icon: 'out', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Campus Bookstore', receiverAccount: '****6619', purpose: 'Course Materials', reference: 'TXN-W3X4Y5', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Transfer to Savings', type: 'debit', amount: 200.00, date: 'Yesterday', icon: 'transfer', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Michael Chen', receiverAccount: '****8902', purpose: 'Weekly Savings Transfer', reference: 'TXN-Z6A7B8', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Spotify', type: 'debit', amount: 9.99, date: '3 days ago', icon: 'out', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Spotify AB', receiverAccount: 'SPOT-SE', purpose: 'Music Subscription', reference: 'TXN-C9D0E1', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
             ]},
         ];
 
@@ -558,7 +558,11 @@
         function getPendingTxns() {
             const all = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
             return all.filter(p => p.fromAccount === currentCustomer.account).map(p => ({
-                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + (p.toBank && p.toBank !== 'Emirs Bank' ? ' (' + p.toBank + ')' : '') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime()
+                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + (p.toBank && p.toBank !== 'Emirs Bank' ? ' (' + p.toBank + ')' : '') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime(),
+                senderName: p.fromName || currentCustomer.name, senderAccount: p.fromAccount,
+                receiverName: p.toName || p.intlRecipientName || 'Recipient', receiverAccount: p.toAccount || '',
+                purpose: p.memo || 'Transfer', reference: p.id || ('PND-' + Date.now().toString(36).toUpperCase()),
+                status: 'pending', timestamp: p.date
             }));
         }
 
@@ -577,8 +581,8 @@
         function exportUserTxns() {
             const txns = [...currentCustomer.transactions, ...getPendingTxns()];
             txns.sort((a,b) => txnSortValue(b) - txnSortValue(a));
-            const rows = [['Description','Type','Amount','Date']];
-            txns.forEach(t => rows.push([t.desc, t.type, t.amount.toFixed(2), t.date]));
+            const rows = [['Reference','Description','Type','Amount','Date','Status','Sender','Sender Account','Receiver','Receiver Account','Purpose']];
+            txns.forEach(t => rows.push([t.reference||'', t.desc, t.type, t.amount.toFixed(2), t.date, t.status||'', t.senderName||'', t.senderAccount||'', t.receiverName||'', t.receiverAccount||'', t.purpose||'']));
             const csv = rows.map(r => r.join(',')).join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'transactions_export.csv'; a.click();
@@ -588,7 +592,47 @@
 
         function txnRow(t) {
             const iconMap = { in:'arrow-down', out:'arrow-up', transfer:'exchange-alt', pending:'clock' };
-            return `<div class="txn-row"><div class="txn-icon ${t.icon}"><i class="fas fa-${iconMap[t.icon]||'exchange-alt'}"></i></div><div class="txn-info"><span>${t.desc}</span><small>${t.date}</small></div><div class="txn-amount ${t.type==='credit'?'credit':'debit'}">${t.type==='credit'?'+':'-'}$${t.amount.toFixed(2)}</div></div>`;
+            const ref = t.reference || '';
+            return `<div class="txn-row" onclick="showTransactionDetail('${ref.replace(/'/g, "\\'")}')" data-txn-ref="${ref}" style="cursor:pointer"><div class="txn-icon ${t.icon}"><i class="fas fa-${iconMap[t.icon]||'exchange-alt'}"></i></div><div class="txn-info"><span>${t.desc}</span><small>${t.date}</small></div><div class="txn-amount ${t.type==='credit'?'credit':'debit'}">${t.type==='credit'?'+':'-'}$${t.amount.toFixed(2)}</div></div>`;
+        }
+
+        function showTransactionDetail(ref) {
+            const allTxns = [...currentCustomer.transactions, ...getPendingTxns()];
+            const txn = allTxns.find(t => t.reference === ref);
+            if (!txn) { showToast('Transaction not found', 'error'); return; }
+
+            const iconMap = { in:'arrow-down', out:'arrow-up', transfer:'exchange-alt', pending:'clock' };
+            const iconFa = iconMap[txn.icon] || 'exchange-alt';
+            const isCredit = txn.type === 'credit';
+            const sign = isCredit ? '+' : '-';
+            const color = isCredit ? 'var(--success)' : 'var(--error)';
+            const typeLabel = isCredit ? 'Credit / Deposit' : txn.icon === 'transfer' ? 'Transfer' : 'Debit / Payment';
+
+            document.getElementById('dtxnIcon').className = 'txn-icon ' + (txn.icon || 'out');
+            document.getElementById('dtxnIcon').innerHTML = '<i class="fas fa-' + iconFa + '"></i>';
+            document.getElementById('dtxnTitle').textContent = txn.desc || 'Transaction';
+            document.getElementById('dtxnAmount').textContent = sign + '$' + txn.amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            document.getElementById('dtxnAmount').style.color = color;
+            document.getElementById('dtxnRef').textContent = txn.reference || '---';
+            document.getElementById('dtxnType').textContent = typeLabel;
+            document.getElementById('dtxnDate').textContent = txn.date || '---';
+            document.getElementById('dtxnStatus').textContent = txn.status === 'completed' ? 'Completed' : txn.status === 'pending' ? 'Pending' : txn.status || '---';
+            document.getElementById('dtxnStatus').style.color = txn.status === 'completed' ? 'var(--success)' : 'var(--warning)';
+
+            const fromLabel = isCredit ? 'Source' : 'From';
+            const toLabel = isCredit ? 'Destination' : 'To';
+
+            document.getElementById('dtxnFromLabel').textContent = fromLabel;
+            document.getElementById('dtxnFromName').textContent = txn.senderName || '---';
+            document.getElementById('dtxnFromAcct').textContent = txn.senderAccount || '---';
+
+            document.getElementById('dtxnToLabel').textContent = toLabel;
+            document.getElementById('dtxnToName').textContent = txn.receiverName || '---';
+            document.getElementById('dtxnToAcct').textContent = txn.receiverAccount || '---';
+
+            document.getElementById('dtxnPurpose').textContent = txn.purpose || txn.desc || '---';
+
+            document.getElementById('txnDetailModal').classList.add('active');
         }
 
         function populateTransferAccounts() {
@@ -845,7 +889,7 @@
             const fa = currentCustomer.accounts.find(a => a.id === acct);
             if (!fa || fa.balance < amt) { done(); showToast('Insufficient funds', 'error'); return; }
             fa.balance -= amt;
-            currentCustomer.transactions.unshift({ desc: 'Bill Pay â€” ' + payee, type: 'debit', amount: amt, date: 'Scheduled ' + date, icon: 'out' });
+            currentCustomer.transactions.unshift({ desc: 'Bill Pay â€” ' + payee, type: 'debit', amount: amt, date: 'Scheduled ' + date, icon: 'out', senderName: currentCustomer.name, senderAccount: fa.number, receiverName: payee, receiverAccount: 'BILL-' + payee.replace(/\s+/g, ''), purpose: 'Bill Payment', reference: 'BILL-' + Date.now().toString(36).toUpperCase(), status: 'completed', timestamp: new Date().toISOString() });
             if (freq !== 'once') {
                 var billId = 'BILL-' + Date.now().toString(36).toUpperCase();
                 const bills = JSON.parse(storage.get('emirs_recurring_bills') || '[]');

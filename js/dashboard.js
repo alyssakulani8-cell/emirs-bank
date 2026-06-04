@@ -105,21 +105,19 @@
         window.verifyIdentity = function verifyIdentity() {
             try {
               const acct = document.getElementById('enrollAccount').value.trim();
-              const ssn = document.getElementById('enrollSsn').value.trim();
               const dob = document.getElementById('enrollDob').value;
               const email = document.getElementById('enrollEmail').value.trim();
               let valid = true;
               if (!acct) { showFieldError('errAccount', 'Account number is required'); valid = false; } else { hideFieldError('errAccount'); }
-              if (!ssn || ssn.length !== 4) { showFieldError('errSsn', 'Enter the last 4 digits'); valid = false; } else { hideFieldError('errSsn'); }
               if (!dob) { showFieldError('errDob', 'Date of birth is required'); valid = false; } else { hideFieldError('errDob'); }
               if (!email || !email.includes('@')) { showFieldError('errEmail', 'Valid email is required'); valid = false; } else { hideFieldError('errEmail'); }
               if (!valid) return;
               var allCustomers = getAllCustomers();
-              var match = allCustomers.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
+              var match = allCustomers.find(function(c) { return c.account === acct && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
               if (!match) {
                 if (typeof sb !== 'undefined') {
                   sb.list('customers').then(function(remote) {
-                    var found = remote.find(function(c) { return c.account === acct && c.ssn === ssn && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
+                    var found = remote.find(function(c) { return c.account === acct && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
                     if (found) {
                       var local = JSON.parse(storage.get('emirs_customers') || '[]');
                       local.push(found);
@@ -132,7 +130,7 @@
                       document.querySelectorAll('.step-dot')[0].classList.add('completed');
                       document.querySelectorAll('.step-dot')[1].classList.add('active');
                     } else {
-                      showToast('No match found. Check your account number, SSN, DOB and email are exactly correct.', 'error');
+                      showToast('No match found. Check your account number, DOB and email are exactly correct.', 'error');
                     }
                   }).catch(function() { showToast('Verification service unavailable. Please try again.', 'error'); });
                 } else {

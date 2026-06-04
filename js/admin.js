@@ -456,7 +456,7 @@
     if (app.email) html += '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + app.email + '</span></div>';
     if (app.phone) html += '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + app.phone + '</span></div>';
     if (app.dob) html += '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + app.dob + '</span></div>';
-    if (app.ssn) html += '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + app.ssn + '</span></div>';
+    if (app.ssn && app.ssn !== '') html += '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + app.ssn + '</span></div>';
     if (idType && idNumber) html += '<div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">' + idType + ' — ' + idNumber + '</span></div>';
 
     if (isPending && isAccountType && showActions) {
@@ -509,7 +509,7 @@
 
       var customer = {
         account: accountNumber,
-        ssn: app.ssn ? app.ssn.replace(/\D/g, '').slice(-4) : '0000',
+        ssn: app.ssn ? app.ssn.replace(/\D/g, '').slice(-4) : '',
         dob: app.dob || '',
         email: app.email || '',
         name: app.name,
@@ -747,7 +747,7 @@
           '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + email + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Account Number</span><span class="detail-value" style="font-family:monospace">' + accountNum + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Balance</span><span class="detail-value">$' + balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>' +
-          '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + ssn + '</span></div>' +
+          (ssn && ssn !== 'N/A' ? '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + ssn + '</span></div>' : '') +
           '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + dob + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-' + (status === 'active' ? 'success' : 'warning') + '">' + status + '</span></span></div>' +
           (raw.accounts && raw.accounts.length > 1 ? '<div class="detail-row"><span class="detail-label">Other Accounts</span><span class="detail-value">' + raw.accounts.slice(1).map(function(a) { return a.number + ' ($' + (parseFloat(a.balance) || 0).toLocaleString() + ')'; }).join(', ') + '</span></div>' : '') +

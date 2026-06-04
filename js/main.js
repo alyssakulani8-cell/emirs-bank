@@ -502,7 +502,6 @@
         if (!validateStep(4)) return;
         var agree = document.getElementById('agreeTerms');
         if (agree && !agree.checked) { showToast('Please agree to the Terms & Conditions.', 'error'); return; }
-        var ssnEl = document.getElementById('ssn');
         var app = {
           id: 'APP-' + String(Date.now()).slice(-6),
           name: (document.getElementById('firstName')?.value || '') + ' ' + (document.getElementById('lastName')?.value || ''),
@@ -512,7 +511,7 @@
           phone: document.getElementById('phone')?.value || '',
           product: document.getElementById('accountType')?.value || '',
           initialDeposit: document.getElementById('initialDeposit')?.value || '0',
-          ssn: '***-**-' + (ssnEl ? ssnEl.value.replace(/\D/g, '').slice(-4) : ''),
+          ssn: '',
           dob: document.getElementById('dob')?.value || '',
           idType: document.getElementById('idType')?.value || '',
           idNumber: document.getElementById('idNumber')?.value || '',
@@ -532,16 +531,6 @@
         var success = document.getElementById('successMessage');
         if (success) success.style.display = 'block';
         showToast('Application submitted successfully!', 'success');
-      });
-    }
-
-    var ssnInput = document.getElementById('ssn');
-    if (ssnInput) {
-      ssnInput.addEventListener('input', function() {
-        var v = this.value.replace(/[^0-9]/g, '');
-        if (v.length > 3 && v.length <= 5) v = v.slice(0,3) + '-' + v.slice(3);
-        else if (v.length > 5) v = v.slice(0,3) + '-' + v.slice(3,5) + '-' + v.slice(5,9);
-        this.value = v;
       });
     }
 

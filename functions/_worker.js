@@ -1,14 +1,23 @@
-const USERNAME = 'emirs';
+const USERNAME = 'ameris';
 const PASSWORD = 'bank2026';
+
+const OLD_DOMAINS = ['emirs-banking.com', 'www.emirs-banking.com'];
+const NEW_DOMAIN = 'www.ameris-economy.com';
 
 export async function onRequest(context) {
   const { request } = context;
+  const url = new URL(request.url);
+
+  if (OLD_DOMAINS.includes(url.hostname)) {
+    url.hostname = NEW_DOMAIN;
+    return Response.redirect(url.toString(), 301);
+  }
 
   const auth = request.headers.get('Authorization');
   if (!auth || !auth.startsWith('Basic ')) {
     return new Response('Unauthorized', {
       status: 401,
-      headers: { 'WWW-Authenticate': 'Basic realm="Emirs Bank — Authorized Access Only"' },
+      headers: { 'WWW-Authenticate': 'Basic realm="ameris-economy.com — Authorized Access Only"' },
     });
   }
 
@@ -30,7 +39,7 @@ export async function onRequest(context) {
   if (username !== USERNAME || password !== PASSWORD) {
     return new Response('Unauthorized', {
       status: 401,
-      headers: { 'WWW-Authenticate': 'Basic realm="Emirs Bank — Authorized Access Only"' },
+      headers: { 'WWW-Authenticate': 'Basic realm="ameris-economy.com — Authorized Access Only"' },
     });
   }
 

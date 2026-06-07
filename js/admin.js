@@ -66,14 +66,14 @@
   ];
 
   var SAMPLE_STAFF = [
-    { name: 'Alice Williams', role: 'Branch Manager', email: 'alice.w@emirsbank.com', phone: '(404) 555-2001', department: 'Management' },
-    { name: 'Bob Thompson', role: 'Loan Officer', email: 'bob.t@emirsbank.com', phone: '(404) 555-2002', department: 'Lending' },
-    { name: 'Carol Martinez', role: 'Customer Service Rep', email: 'carol.m@emirsbank.com', phone: '(404) 555-2003', department: 'Service' },
-    { name: 'Daniel Kim', role: 'Financial Advisor', email: 'daniel.k@emirsbank.com', phone: '(404) 555-2004', department: 'Wealth Management' },
-    { name: 'Eva Patel', role: 'Operations Manager', email: 'eva.p@emirsbank.com', phone: '(404) 555-2005', department: 'Operations' },
-    { name: 'Frank Rivera', role: 'IT Security Specialist', email: 'frank.r@emirsbank.com', phone: '(404) 555-2006', department: 'Technology' },
-    { name: 'Grace Okafor', role: 'Compliance Officer', email: 'grace.o@emirsbank.com', phone: '(404) 555-2007', department: 'Compliance' },
-    { name: 'Henry Chen', role: 'Teller', email: 'henry.c@emirsbank.com', phone: '(404) 555-2008', department: 'Service' }
+    { name: 'Alice Williams', role: 'Branch Manager', email: 'alice.w@ameriseconomy.com', phone: '(404) 555-2001', department: 'Management' },
+    { name: 'Bob Thompson', role: 'Loan Officer', email: 'bob.t@ameriseconomy.com', phone: '(404) 555-2002', department: 'Lending' },
+    { name: 'Carol Martinez', role: 'Customer Service Rep', email: 'carol.m@ameriseconomy.com', phone: '(404) 555-2003', department: 'Service' },
+    { name: 'Daniel Kim', role: 'Financial Advisor', email: 'daniel.k@ameriseconomy.com', phone: '(404) 555-2004', department: 'Wealth Management' },
+    { name: 'Eva Patel', role: 'Operations Manager', email: 'eva.p@ameriseconomy.com', phone: '(404) 555-2005', department: 'Operations' },
+    { name: 'Frank Rivera', role: 'IT Security Specialist', email: 'frank.r@ameriseconomy.com', phone: '(404) 555-2006', department: 'Technology' },
+    { name: 'Grace Okafor', role: 'Compliance Officer', email: 'grace.o@ameriseconomy.com', phone: '(404) 555-2007', department: 'Compliance' },
+    { name: 'Henry Chen', role: 'Teller', email: 'henry.c@ameriseconomy.com', phone: '(404) 555-2008', department: 'Service' }
   ];
 
   var SAMPLE_PRODUCTS = [
@@ -101,13 +101,13 @@
   function initTheme() {
     var btn = document.getElementById('themeToggle');
     if (!btn) return;
-    var saved = storage.get('emirs_theme');
+    var saved = storage.get('ameris_theme');
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     btn.innerHTML = saved === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     btn.addEventListener('click', function() {
       var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      storage.set('emirs_theme', isDark ? 'light' : 'dark');
+      storage.set('ameris_theme', isDark ? 'light' : 'dark');
       this.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
     });
   }
@@ -361,7 +361,7 @@
     if (!container) return;
     var filter = document.getElementById('appFilter')?.value || 'all';
     var type = document.getElementById('appType')?.value || 'all';
-    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var localApps = JSON.parse(storage.get('ameris_applications') || '[]');
 
     if (typeof sb !== 'undefined') {
       sb.list('applications').then(function(remoteApps) {
@@ -409,7 +409,7 @@
     var modal = document.getElementById('appDetailModal');
     var body = document.getElementById('appDetailBody');
     var footer = document.getElementById('appDetailFooter');
-    var localStorageApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var localStorageApps = JSON.parse(storage.get('ameris_applications') || '[]');
     var sampleApp = SAMPLE_APPLICATIONS.find(function(a) { return a.id === id; });
     var localApp = localStorageApps.find(function(a) { return a.id === id; });
     var isSample = !!sampleApp;
@@ -456,7 +456,6 @@
     if (app.email) html += '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + app.email + '</span></div>';
     if (app.phone) html += '<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">' + app.phone + '</span></div>';
     if (app.dob) html += '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + app.dob + '</span></div>';
-    if (app.ssn && app.ssn !== '') html += '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + app.ssn + '</span></div>';
     if (idType && idNumber) html += '<div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">' + idType + ' — ' + idNumber + '</span></div>';
 
     if (isPending && isAccountType && showActions) {
@@ -503,7 +502,7 @@
       if (!accountNumber) { showToast('Please allocate an account number or click Generate', 'error'); return; }
       if (accountNumber.length < 4) { showToast('Account number must be at least 4 characters', 'error'); return; }
 
-      var existingCusts = JSON.parse(storage.get('emirs_customers') || '[]');
+      var existingCusts = JSON.parse(storage.get('ameris_customers') || '[]');
       var initials = app.name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase() || 'NA';
       var deposit = parseFloat(app.initialDeposit || app.initialdeposit) || 0;
 
@@ -529,7 +528,7 @@
           type: 'credit', amount: deposit,
           date: new Date().toISOString().split('T')[0],
           icon: 'in',
-          senderName: 'Emirs Bank', senderAccount: 'EMIRS-HO',
+          senderName: 'Ameris Global', senderAccount: 'AMERIS-GLOBAL-HO',
           receiverName: app.name, receiverAccount: accountNumber,
           purpose: 'Initial Account Deposit', reference: 'DEP-' + Date.now().toString(36).toUpperCase(),
           status: 'completed', timestamp: new Date().toISOString()
@@ -537,17 +536,17 @@
       }
 
       existingCusts.push(customer);
-      storage.set('emirs_customers', JSON.stringify(existingCusts));
+      storage.set('ameris_customers', JSON.stringify(existingCusts));
       if (typeof sb !== 'undefined') sb.insert('customers', customer).catch(function(e) { console.warn('Supabase customer insert failed:', e); });
       app.accountNumber = accountNumber;
     }
 
     app.status = 'approved';
-    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var localApps = JSON.parse(storage.get('ameris_applications') || '[]');
     var idx = localApps.findIndex(function(a) { return a.id === app.id; });
     if (idx !== -1) { localApps[idx] = app; }
     else { localApps.push(app); }
-    storage.set('emirs_applications', JSON.stringify(localApps));
+    storage.set('ameris_applications', JSON.stringify(localApps));
     if (typeof sb !== 'undefined') sb.update('applications', 'id', app.id, { status: 'approved' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
@@ -566,11 +565,11 @@
     if (app.status !== 'pending') { showToast('Application already ' + app.status, 'warning'); return; }
 
     app.status = 'rejected';
-    var localApps = JSON.parse(storage.get('emirs_applications') || '[]');
+    var localApps = JSON.parse(storage.get('ameris_applications') || '[]');
     var idx = localApps.findIndex(function(a) { return a.id === app.id; });
     if (idx !== -1) { localApps[idx] = app; }
     else { localApps.push(app); }
-    storage.set('emirs_applications', JSON.stringify(localApps));
+    storage.set('ameris_applications', JSON.stringify(localApps));
     if (typeof sb !== 'undefined') sb.update('applications', 'id', app.id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase update failed:', e); });
 
     closeModal('appDetailModal');
@@ -584,7 +583,7 @@
     var container = document.getElementById('submissionsList');
     if (!container) return;
     var filter = document.getElementById('subFilter')?.value || 'all';
-    var localSubs = JSON.parse(storage.get('emirs_contact_submissions') || '[]').map(function(s, i) {
+    var localSubs = JSON.parse(storage.get('ameris_contact_submissions') || '[]').map(function(s, i) {
       return { id: 'SUB-LOCAL-' + i, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : new Date().toISOString().split('T')[0] };
     });
 
@@ -628,7 +627,7 @@
       } else { showToast('Submission not found', 'error'); }
       return;
     }
-    var localSubs = JSON.parse(storage.get('emirs_contact_submissions') || '[]').map(function(s, i) {
+    var localSubs = JSON.parse(storage.get('ameris_contact_submissions') || '[]').map(function(s, i) {
       return { id: 'SUB-LOCAL-' + i, name: s.name, email: s.email, subject: s.subject, message: s.message, status: s.responded ? 'read' : 'unread', date: s.date ? s.date.split('T')[0] : '' };
     });
     var allSubs = SAMPLE_SUBMISSIONS.concat(localSubs);
@@ -665,7 +664,7 @@
   };
 
   function getAllCustomers(callback) {
-    var local = JSON.parse(storage.get('emirs_customers') || '[]');
+    var local = JSON.parse(storage.get('ameris_customers') || '[]');
     var all = local.map(function(c) { return { _source: 'local', _key: c.account || c.email, _name: c.name, _raw: c }; });
 
     callback(all);
@@ -732,11 +731,10 @@
       var balance = 0;
       if (raw.accounts && raw.accounts[0]) { balance = parseFloat(raw.accounts[0].balance) || 0; }
       else if (typeof raw.balance === 'number') { balance = raw.balance; }
-      var ssn = raw.ssn || raw.SSN || 'N/A';
       var dob = raw.dob || raw.DOB || raw.dateOfBirth || 'N/A';
       var status = raw.status || 'active';
 
-      var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+      var users = JSON.parse(storage.get('ameris_online_users') || '{}');
       var foundUser = null;
       for (var u in users) { if (users[u].account === accountNum) { foundUser = u; break; } }
 
@@ -747,7 +745,6 @@
           '<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">' + email + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Account Number</span><span class="detail-value" style="font-family:monospace">' + accountNum + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Balance</span><span class="detail-value">$' + balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</span></div>' +
-          (ssn && ssn !== 'N/A' ? '<div class="detail-row"><span class="detail-label">SSN</span><span class="detail-value">' + ssn + '</span></div>' : '') +
           '<div class="detail-row"><span class="detail-label">Date of Birth</span><span class="detail-value">' + dob + '</span></div>' +
           '<div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge badge-' + (status === 'active' ? 'success' : 'warning') + '">' + status + '</span></span></div>' +
           (raw.accounts && raw.accounts.length > 1 ? '<div class="detail-row"><span class="detail-label">Other Accounts</span><span class="detail-value">' + raw.accounts.slice(1).map(function(a) { return a.number + ' ($' + (parseFloat(a.balance) || 0).toLocaleString() + ')'; }).join(', ') + '</span></div>' : '') +
@@ -765,7 +762,7 @@
   window.showAddUser = function() { showToast('Add user feature coming soon', 'info'); };
 
   window.resetCustomerPassword = function(username) {
-    var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+    var users = JSON.parse(storage.get('ameris_online_users') || '{}');
     if (!users[username]) { showToast('User not found', 'error'); return; }
     var modal = document.getElementById('resetPwModal');
     if (!modal) return;
@@ -785,10 +782,10 @@
       document.getElementById('resetPwErrorMsg').style.display = 'block';
       return;
     }
-    var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+    var users = JSON.parse(storage.get('ameris_online_users') || '{}');
     if (!users[username]) { showToast('User not found', 'error'); return; }
     users[username].password = newPw;
-    storage.set('emirs_online_users', JSON.stringify(users));
+    storage.set('ameris_online_users', JSON.stringify(users));
     if (typeof sb !== 'undefined') {
       sb.update('enrolled_users', 'username', username, { password: newPw }).catch(function(e) {
         console.warn('Supabase password update failed:', e);
@@ -800,7 +797,7 @@
 
   window.viewCustomerDashboard = function(accountNum, customerName) {
     closeModal('customerDetailModal');
-    var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+    var users = JSON.parse(storage.get('ameris_online_users') || '{}');
     var foundUser = null;
     for (var u in users) {
       if (users[u].account === accountNum) { foundUser = u; break; }
@@ -810,7 +807,7 @@
       return;
     }
     var creds = users[foundUser];
-    sessionStorage.setItem('emirs_admin_impersonate', JSON.stringify({
+    sessionStorage.setItem('ameris_admin_impersonate', JSON.stringify({
       username: foundUser,
       password: creds.password,
       account: creds.account
@@ -847,7 +844,7 @@
   }
 
   window.loadPendingTransfers = function() {
-    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    var pending = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
     if (typeof sb !== 'undefined') {
       sb.list('applications').then(function(remote) {
         var remoteTransfers = remote.filter(function(a) { return a.type === 'pending_transfer' && a.status === 'pending'; });
@@ -875,7 +872,7 @@
             seen[r.id] = true;
           }
         });
-        storage.set('emirs_pending_transfers', JSON.stringify(pending));
+        storage.set('ameris_pending_transfers', JSON.stringify(pending));
         renderTransferList(pending);
       }).catch(function() { renderTransferList(pending); });
     } else {
@@ -884,11 +881,11 @@
   };
 
   window.approvePendingTransfer = function(id) {
-    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    var pending = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
     var idx = pending.findIndex(function(t) { return t.id === id; });
     if (idx === -1) { showToast('Transfer not found', 'error'); return; }
     var t = pending[idx];
-    var allCustomers = JSON.parse(storage.get('emirs_customers') || '[]');
+    var allCustomers = JSON.parse(storage.get('ameris_customers') || '[]');
     var custIdx = allCustomers.findIndex(function(c) { return c.account === t.fromAccount; });
     if (custIdx === -1) { showToast('Customer account not found', 'error'); return; }
     var customer = allCustomers[custIdx];
@@ -912,9 +909,9 @@
       timestamp: new Date().toISOString()
     });
     allCustomers[custIdx] = customer;
-    storage.set('emirs_customers', JSON.stringify(allCustomers));
+    storage.set('ameris_customers', JSON.stringify(allCustomers));
     pending.splice(idx, 1);
-    storage.set('emirs_pending_transfers', JSON.stringify(pending));
+    storage.set('ameris_pending_transfers', JSON.stringify(pending));
     if (typeof sb !== 'undefined') {
       sb.update('customers', 'account', customer.account, customer).catch(function(e) { console.warn('Supabase customer update failed:', e); });
       sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase transfer approve failed:', e); });
@@ -924,12 +921,12 @@
   };
 
   window.rejectPendingTransfer = function(id) {
-    var pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+    var pending = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
     var idx = pending.findIndex(function(t) { return t.id === id; });
     if (idx === -1) { showToast('Transfer not found', 'error'); return; }
     var t = pending[idx];
     pending.splice(idx, 1);
-    storage.set('emirs_pending_transfers', JSON.stringify(pending));
+    storage.set('ameris_pending_transfers', JSON.stringify(pending));
     if (typeof sb !== 'undefined') {
       sb.update('applications', 'id', id, { status: 'rejected' }).catch(function(e) { console.warn('Supabase transfer reject failed:', e); });
     }
@@ -1002,7 +999,7 @@
     var fields = document.querySelectorAll('.cms-fields input, .cms-fields textarea');
     var data = {};
     fields.forEach(function(f) { data[f.id] = f.value; });
-    storage.set('emirs_cms_content', JSON.stringify(data));
+    storage.set('ameris_cms_content', JSON.stringify(data));
     showToast('All content saved successfully!', 'success');
   };
 

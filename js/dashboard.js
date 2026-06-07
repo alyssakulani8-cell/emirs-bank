@@ -6,14 +6,14 @@
                 { id: 'a2', type: 'High-Yield Savings', number: '****2190', balance: 45200.00 },
                 { id: 'a3', type: 'Platinum Credit Card', number: '****7712', balance: -2340.00 }
             ], transactions: [
-                { desc: 'Salary Deposit', type: 'credit', amount: 5200.00, date: 'Today', icon: 'in', senderName: 'Emirs Bank Payroll', senderAccount: 'EMIRS-PAYROLL', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Monthly Salary', reference: 'TXN-A1B2C3', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'Salary Deposit', type: 'credit', amount: 5200.00, date: 'Today', icon: 'in', senderName: 'Ameris Global Payroll', senderAccount: 'AMERIS-PAYROLL', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Monthly Salary', reference: 'TXN-A1B2C3', status: 'completed', timestamp: new Date().toISOString() },
                 { desc: 'Whole Foods Market', type: 'debit', amount: 87.43, date: 'Today', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Whole Foods Market', receiverAccount: '****7001', purpose: 'Grocery Purchase', reference: 'TXN-D4E5F6', status: 'completed', timestamp: new Date().toISOString() },
                 { desc: 'Transfer to Savings', type: 'debit', amount: 500.00, date: 'Yesterday', icon: 'transfer', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'John Smith', receiverAccount: '****2190', purpose: 'Savings Transfer', reference: 'TXN-G7H8I9', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
                 { desc: 'Amazon.com', type: 'debit', amount: 129.99, date: 'Yesterday', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Amazon.com', receiverAccount: 'AMZ-US', purpose: 'Online Shopping', reference: 'TXN-J0K1L2', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
                 { desc: 'Dividend Payment', type: 'credit', amount: 34.50, date: '2 days ago', icon: 'in', senderName: 'Vanguard Investments', senderAccount: 'VG-123456', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Quarterly Dividend', reference: 'TXN-M3N4O5', status: 'completed', timestamp: new Date(Date.now() - 172800000).toISOString() },
                 { desc: 'Electric Bill', type: 'debit', amount: 142.00, date: '2 days ago', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Georgia Power Co', receiverAccount: '****5502', purpose: 'Monthly Electric Bill', reference: 'TXN-P6Q7R8', status: 'completed', timestamp: new Date(Date.now() - 172800000).toISOString() },
                 { desc: 'Starbucks', type: 'debit', amount: 5.75, date: '3 days ago', icon: 'out', senderName: 'John Smith', senderAccount: '****4829', receiverName: 'Starbucks #4521', receiverAccount: '****3009', purpose: 'Coffee Purchase', reference: 'TXN-S9T0U1', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
-                { desc: 'Interest Payment', type: 'credit', amount: 12.84, date: '5 days ago', icon: 'in', senderName: 'Emirs Bank', senderAccount: 'EMIRS-INT', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Savings Interest', reference: 'TXN-V2W3X4', status: 'completed', timestamp: new Date(Date.now() - 432000000).toISOString() },
+                { desc: 'Interest Payment', type: 'credit', amount: 12.84, date: '5 days ago', icon: 'in', senderName: 'Ameris Global', senderAccount: 'AMERIS-GLOBAL-INT', receiverName: 'John Smith', receiverAccount: '****4829', purpose: 'Savings Interest', reference: 'TXN-V2W3X4', status: 'completed', timestamp: new Date(Date.now() - 432000000).toISOString() },
             ]},
             { account: '****6678', ssn: '5678', dob: '1990-11-22', email: 'sarah@email.com', name: 'Sarah Johnson', initials: 'SJ', accounts: [
                 { id: 'b1', type: 'Premium Savings', number: '****6678', balance: 89200.75 },
@@ -38,7 +38,7 @@
         ];
 
         let enrolledUsers = {};
-        try { enrolledUsers = JSON.parse(storage.get('emirs_online_users') || '{}'); } catch(e) { console.warn('parse enrolledUsers:', e); }
+        try { enrolledUsers = JSON.parse(storage.get('ameris_online_users') || '{}'); } catch(e) { console.warn('parse enrolledUsers:', e); }
         let currentCustomer = null;
         let verifiedCustomer = null;
         let currentView = 'overview';
@@ -62,33 +62,33 @@
             return 'other';
         }
 
-        function loadApprovedCustomers() { try { approvedCustomers = JSON.parse(storage.get('emirs_customers') || '[]'); } catch(e) { approvedCustomers = []; console.warn('loadApprovedCustomers error:', e); } }
+        function loadApprovedCustomers() { try { approvedCustomers = JSON.parse(storage.get('ameris_customers') || '[]'); } catch(e) { approvedCustomers = []; console.warn('loadApprovedCustomers error:', e); } }
         function getAllCustomers() { loadApprovedCustomers(); return [...CUSTOMER_DB, ...approvedCustomers]; }
 
         if (typeof sb !== 'undefined') {
           sb.list('customers').then(function(remote) {
-            var local = JSON.parse(storage.get('emirs_customers') || '[]');
+            var local = JSON.parse(storage.get('ameris_customers') || '[]');
             var byAcct = {};
             local.forEach(function(c) { byAcct[c.account] = c; });
             remote.forEach(function(c) {
               if (byAcct[c.account]) { Object.assign(byAcct[c.account], c); }
               else { local.push(c); byAcct[c.account] = c; }
             });
-            storage.set('emirs_customers', JSON.stringify(local));
+            storage.set('ameris_customers', JSON.stringify(local));
             loadApprovedCustomers();
           }).catch(function(e) { console.warn('Supabase customer sync failed:', e); });
 
           sb.list('enrolled_users').then(function(remote) {
-            var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+            var local = JSON.parse(storage.get('ameris_online_users') || '{}');
             remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferPin }; } });
-            storage.set('emirs_online_users', JSON.stringify(local));
+            storage.set('ameris_online_users', JSON.stringify(local));
             enrolledUsers = local;
           }).catch(function(e) { console.warn('Supabase enrolled_users sync failed:', e); });
         }
 
         function refreshCustomerData() {
             if (!currentCustomer || !currentUsername) return;
-            const customers = JSON.parse(storage.get('emirs_customers') || '[]');
+            const customers = JSON.parse(storage.get('ameris_customers') || '[]');
             const fresh = customers.find(c => c.account === currentCustomer.account);
             if (fresh) {
                 currentCustomer.accounts = fresh.accounts;
@@ -119,9 +119,9 @@
                   sb.list('customers').then(function(remote) {
                     var found = remote.find(function(c) { return c.account === acct && c.dob === dob && c.email.toLowerCase() === email.toLowerCase(); });
                     if (found) {
-                      var local = JSON.parse(storage.get('emirs_customers') || '[]');
+                      var local = JSON.parse(storage.get('ameris_customers') || '[]');
                       local.push(found);
-                      storage.set('emirs_customers', JSON.stringify(local));
+                      storage.set('ameris_customers', JSON.stringify(local));
                       loadApprovedCustomers();
                       verifiedCustomer = found;
                       document.getElementById('verifySuccess').classList.add('show');
@@ -161,7 +161,7 @@
             if (enrolledUsers[username]) { showFieldError('errUsername', 'Username already taken'); valid = false; }
             if (!valid) return;
             enrolledUsers[username] = { password: password, account: verifiedCustomer.account, transferPin: transferPin };
-            storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+            storage.set('ameris_online_users', JSON.stringify(enrolledUsers));
             sb.upsert('enrolled_users', { username: username, password: password, account: verifiedCustomer.account, transferpin: transferPin }, 'username').catch(function(e) { console.warn('Supabase sync failed:', e); });
             document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
             document.getElementById('enrollStep3').classList.add('active');
@@ -182,14 +182,14 @@
             e.preventDefault();
             const username = document.getElementById('loginUser').value.trim().toLowerCase();
             const password = document.getElementById('loginPass').value.trim();
-            if (username === 'emirs' && password === 'admin2026') { sessionStorage.setItem('emirs_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
+            if (username === 'ameris' && password === 'admin2026') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
             var user = enrolledUsers[username];
             if (!user || user.password !== password) {
               sb.list('enrolled_users').then(function(rows) {
                 var found = rows.find(function(u) { return u.username === username && u.password === password; });
                 if (found) {
                   enrolledUsers[username] = { password: found.password, account: found.account, transferPin: found.transferPin };
-                  storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+                  storage.set('ameris_online_users', JSON.stringify(enrolledUsers));
                   loginWithUser(found);
                 } else {
                   showToast('Invalid username or password.', 'error');
@@ -233,18 +233,18 @@
 
         function initDashboard() {
             sb.list('customers').then(function(remote) {
-              var local = JSON.parse(storage.get('emirs_customers') || '[]');
+              var local = JSON.parse(storage.get('ameris_customers') || '[]');
               var ids = {};
               local.forEach(function(c) { ids[c.account] = true; });
               remote.forEach(function(c) { if (!ids[c.account]) { local.push(c); ids[c.account] = true; } });
-              storage.set('emirs_customers', JSON.stringify(local));
+              storage.set('ameris_customers', JSON.stringify(local));
               loadApprovedCustomers();
               refreshCustomerData();
             }).catch(function() { refreshCustomerData(); });
             sb.list('enrolled_users').then(function(remote) {
-              var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+              var local = JSON.parse(storage.get('ameris_online_users') || '{}');
           remote.forEach(function(u) { if (!local[u.username]) { local[u.username] = { password: u.password, account: u.account, transferPin: u.transferpin || u.transferPin }; } });
-              storage.set('emirs_online_users', JSON.stringify(local));
+              storage.set('ameris_online_users', JSON.stringify(local));
               enrolledUsers = local;
             }).catch(function() {});
             const h = new Date().getHours();
@@ -352,7 +352,7 @@
             if (typeof sb === 'undefined') { if (callback) callback(); return; }
             sb.list('applications').then(function(records) {
                 var remote = records.filter(function(r) { return r.type === 'beneficiary' && r.name === currentUsername && r.status !== 'removed'; });
-                var local = JSON.parse(storage.get('emirs_beneficiaries_' + currentUsername) || '[]');
+                var local = JSON.parse(storage.get('ameris_beneficiaries_' + currentUsername) || '[]');
                 var seen = {};
                 local.forEach(function(b) { seen[b.account] = true; });
                 remote.forEach(function(r) {
@@ -364,7 +364,7 @@
                         }
                     } catch(e) {}
                 });
-                storage.set('emirs_beneficiaries_' + currentUsername, JSON.stringify(local));
+                storage.set('ameris_beneficiaries_' + currentUsername, JSON.stringify(local));
                 if (callback) callback();
             }).catch(function() { if (callback) callback(); });
         }
@@ -373,7 +373,7 @@
             if (typeof sb === 'undefined') { if (callback) callback(); return; }
             sb.list('applications').then(function(records) {
                 var remote = records.filter(function(r) { return r.type === 'recurring_bill' && r.name === currentUsername && r.status !== 'cancelled'; });
-                var local = JSON.parse(storage.get('emirs_recurring_bills') || '[]');
+                var local = JSON.parse(storage.get('ameris_recurring_bills') || '[]');
                 var seen = {};
                 local.forEach(function(b) { seen[b.id] = true; });
                 remote.forEach(function(r) {
@@ -385,7 +385,7 @@
                         } catch(e) {}
                     }
                 });
-                storage.set('emirs_recurring_bills', JSON.stringify(local));
+                storage.set('ameris_recurring_bills', JSON.stringify(local));
                 if (callback) callback();
             }).catch(function() { if (callback) callback(); });
         }
@@ -394,7 +394,7 @@
             if (typeof sb === 'undefined') { if (callback) callback(); return; }
             sb.list('applications').then(function(records) {
                 var remote = records.filter(function(r) { return r.type === 'recurring_transfer' && r.name === currentUsername && r.status === 'active'; });
-                var local = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
+                var local = JSON.parse(storage.get('ameris_recurring_' + currentUsername) || '[]');
                 var seen = {};
                 local.forEach(function(r) { seen[r.id] = true; });
                 remote.forEach(function(r) {
@@ -406,7 +406,7 @@
                         } catch(e) {}
                     }
                 });
-                storage.set('emirs_recurring_' + currentUsername, JSON.stringify(local));
+                storage.set('ameris_recurring_' + currentUsername, JSON.stringify(local));
                 if (callback) callback();
             }).catch(function() { if (callback) callback(); });
         }
@@ -414,7 +414,7 @@
         function renderBeneficiaries() {
             const list = document.getElementById('beneficiariesList');
             if (!list) return;
-            let beneficiaries = JSON.parse(storage.get('emirs_beneficiaries_' + currentUsername) || '[]');
+            let beneficiaries = JSON.parse(storage.get('ameris_beneficiaries_' + currentUsername) || '[]');
             const sel = document.getElementById('toAccountSelect');
             if (sel) {
                 sel.innerHTML = '<option value="">Select beneficiary...</option>' + beneficiaries.map(b => `<option value="${b.account}">${b.nickname || b.name} â€” ${b.account}</option>`).join('');
@@ -441,10 +441,10 @@
             const account = document.getElementById('benefAccount').value.trim();
             const nickname = document.getElementById('benefNickname').value.trim() || name;
             if (!name || !account) { showToast('Name and account are required', 'error'); return; }
-            let beneficiaries = JSON.parse(storage.get('emirs_beneficiaries_' + currentUsername) || '[]');
+            let beneficiaries = JSON.parse(storage.get('ameris_beneficiaries_' + currentUsername) || '[]');
             if (beneficiaries.find(b => b.account === account)) { showToast('Beneficiary already exists', 'warning'); return; }
             beneficiaries.push({ name, account, nickname });
-            storage.set('emirs_beneficiaries_' + currentUsername, JSON.stringify(beneficiaries));
+            storage.set('ameris_beneficiaries_' + currentUsername, JSON.stringify(beneficiaries));
             if (typeof sb !== 'undefined') {
                 var refId = 'BEN-' + Date.now().toString(36).toUpperCase();
                 sb.insert('applications', { id: refId, name: currentUsername, type: 'beneficiary', product: name, status: 'active', date: new Date().toISOString(), phone: JSON.stringify({ name: name, account: account, nickname: nickname }) }).catch(function(e) { console.warn('Supabase beneficiary sync failed:', e); });
@@ -456,10 +456,10 @@
         });
 
         function removeBeneficiary(account) {
-            let beneficiaries = JSON.parse(storage.get('emirs_beneficiaries_' + currentUsername) || '[]');
+            let beneficiaries = JSON.parse(storage.get('ameris_beneficiaries_' + currentUsername) || '[]');
             var removed = beneficiaries.filter(function(b) { return b.account === account; });
             beneficiaries = beneficiaries.filter(b => b.account !== account);
-            storage.set('emirs_beneficiaries_' + currentUsername, JSON.stringify(beneficiaries));
+            storage.set('ameris_beneficiaries_' + currentUsername, JSON.stringify(beneficiaries));
             if (typeof sb !== 'undefined') {
                 sb.list('applications').then(function(records) {
                     var match = records.filter(function(r) { return r.type === 'beneficiary' && r.name === currentUsername && r.status === 'active'; });
@@ -484,7 +484,7 @@
         function renderRecurring() {
             const list = document.getElementById('recurringList');
             if (!list) return;
-            let recurring = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
+            let recurring = JSON.parse(storage.get('ameris_recurring_' + currentUsername) || '[]');
             if (!recurring.length) {
                 list.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No Scheduled Transfers</h3><p>Set up recurring transfers from the Transfer page.</p></div>';
                 return;
@@ -499,9 +499,9 @@
         }
 
         function cancelRecurring(id) {
-            let recurring = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
+            let recurring = JSON.parse(storage.get('ameris_recurring_' + currentUsername) || '[]');
             recurring = recurring.filter(r => r.id !== id);
-            storage.set('emirs_recurring_' + currentUsername, JSON.stringify(recurring));
+            storage.set('ameris_recurring_' + currentUsername, JSON.stringify(recurring));
             if (typeof sb !== 'undefined') {
                 sb.update('applications', 'id', id, { status: 'cancelled' }).catch(function(e) { console.warn('Supabase recurring cancel failed:', e); });
             }
@@ -554,9 +554,9 @@
         }
 
         function getPendingTxns() {
-            const all = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+            const all = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
             return all.filter(p => p.fromAccount === currentCustomer.account).map(p => ({
-                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + (p.toBank && p.toBank !== 'Emirs Bank' ? ' (' + p.toBank + ')' : '') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime(),
+                desc: 'Transfer to ' + (p.toName || p.intlRecipientName || 'Recipient') + (p.toBank && p.toBank !== 'Ameris Global' ? ' (' + p.toBank + ')' : '') + ' — Pending', type: 'debit', amount: p.amount, date: new Date(p.date).toLocaleDateString(), icon: 'pending', _ts: new Date(p.date).getTime(),
                 senderName: p.fromName || currentCustomer.name, senderAccount: p.fromAccount,
                 receiverName: p.toName || p.intlRecipientName || 'Recipient', receiverAccount: p.toAccount || '',
                 purpose: p.memo || 'Transfer', reference: p.id || ('PND-' + Date.now().toString(36).toUpperCase()),
@@ -788,20 +788,20 @@
             if (transferType === 'local') {
                 const toAcct = document.getElementById('toAccount').value.trim();
                 const localName = document.getElementById('localRecipientName').value.trim();
-                const localBank = document.getElementById('localBankName').value.trim() || 'Emirs Bank';
-                const pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+                const localBank = document.getElementById('localBankName').value.trim() || 'Ameris Global';
+                const pending = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
                 pending.push({ id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId, fromName: currentCustomer.name, toAccount: toAcct, toName: localName, toBank: localBank, amount: amt, memo: memo, status: 'pending', date: new Date().toISOString(), transferType: 'local' });
-                storage.set('emirs_pending_transfers', JSON.stringify(pending));
+                storage.set('ameris_pending_transfers', JSON.stringify(pending));
                 if (typeof sb !== 'undefined') {
                   sb.insert('applications', { id: refId, name: currentCustomer.name, type: 'pending_transfer', product: 'local', status: 'pending', date: new Date().toISOString(), phone: JSON.stringify({ fromAccount: selectedFromAccount.number, toAccount: toAcct, toName: localName, toBank: localBank, memo: memo, amount: amt }) }).catch(function(e) { console.warn('Supabase transfer sync failed:', e); });
                 }
                 if (pendingTransferData.type === 'recurring') {
                     var freq = document.getElementById('recurringFreq').value;
                     var count = parseInt(document.getElementById('recurringCount').value) || 12;
-                    var recurring = JSON.parse(storage.get('emirs_recurring_' + currentUsername) || '[]');
+                    var recurring = JSON.parse(storage.get('ameris_recurring_' + currentUsername) || '[]');
                     var recEntry = { id: 'REC-' + Date.now().toString(36).toUpperCase(), fromAccount: selectedFromAccount.number, toAccount: toAcct, toName: localName, toBank: localBank, amount: amt, memo: memo, freq: freq, count: count, nextDate: new Date().toISOString(), status: 'active' };
                     recurring.unshift(recEntry);
-                    storage.set('emirs_recurring_' + currentUsername, JSON.stringify(recurring));
+                    storage.set('ameris_recurring_' + currentUsername, JSON.stringify(recurring));
                     if (typeof sb !== 'undefined') {
                         sb.insert('applications', { id: recEntry.id, name: currentUsername, type: 'recurring_transfer', product: 'local', status: 'active', date: new Date().toISOString(), phone: JSON.stringify(recEntry) }).catch(function(e) { console.warn('Supabase recurring sync failed:', e); });
                     }
@@ -824,7 +824,7 @@
                 const intlCurrency = document.getElementById('intlCurrency').value;
                 const intlPurpose = document.getElementById('intlPurpose').value;
                 const intlFeeOption = document.getElementById('intlFeeOption').value;
-                const pending = JSON.parse(storage.get('emirs_pending_transfers') || '[]');
+                const pending = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
                 pending.push({
                     id: refId, fromAccount: selectedFromAccount.number, fromAccountId: fromId,
                     fromName: currentCustomer.name, amount: amt, memo: memo,
@@ -834,7 +834,7 @@
                     intlCountry: intlCountry, intlCurrency: intlCurrency,
                     intlPurpose: intlPurpose, intlFeeOption: intlFeeOption
                 });
-                storage.set('emirs_pending_transfers', JSON.stringify(pending));
+                storage.set('ameris_pending_transfers', JSON.stringify(pending));
                 if (typeof sb !== 'undefined') {
                   sb.insert('applications', { id: refId, name: currentCustomer.name, type: 'pending_transfer', product: 'international', status: 'pending', date: new Date().toISOString(), phone: JSON.stringify({ fromAccount: selectedFromAccount.number, amount: amt, memo: memo, intlRecipientName: intlName, intlIban: intlIban, intlSwift: intlSwift, intlBankName: intlBank, intlCountry: intlCountry, intlCurrency: intlCurrency }) }).catch(function(e) { console.warn('Supabase intl transfer sync failed:', e); });
                 }
@@ -890,16 +890,16 @@
             currentCustomer.transactions.unshift({ desc: 'Bill Pay â€” ' + payee, type: 'debit', amount: amt, date: 'Scheduled ' + date, icon: 'out', senderName: currentCustomer.name, senderAccount: fa.number, receiverName: payee, receiverAccount: 'BILL-' + payee.replace(/\s+/g, ''), purpose: 'Bill Payment', reference: 'BILL-' + Date.now().toString(36).toUpperCase(), status: 'completed', timestamp: new Date().toISOString() });
             if (freq !== 'once') {
                 var billId = 'BILL-' + Date.now().toString(36).toUpperCase();
-                const bills = JSON.parse(storage.get('emirs_recurring_bills') || '[]');
+                const bills = JSON.parse(storage.get('ameris_recurring_bills') || '[]');
                 bills.push({ id: billId, payee: payee, amount: amt, freq: freq, nextDate: date, account: currentCustomer.account });
-                storage.set('emirs_recurring_bills', JSON.stringify(bills));
+                storage.set('ameris_recurring_bills', JSON.stringify(bills));
                 if (typeof sb !== 'undefined') {
                     sb.insert('applications', { id: billId, name: currentUsername, type: 'recurring_bill', product: payee, status: 'active', date: new Date().toISOString(), phone: JSON.stringify({ payee: payee, amount: amt, freq: freq, nextDate: date, account: currentCustomer.account }) }).catch(function(e) { console.warn('Supabase recurring bill sync failed:', e); });
                 }
             }
-            const customers = JSON.parse(storage.get('emirs_customers') || '[]');
+            const customers = JSON.parse(storage.get('ameris_customers') || '[]');
             const idx = customers.findIndex(c => c.account === currentCustomer.account);
-            if (idx >= 0) { customers[idx] = currentCustomer; storage.set('emirs_customers', JSON.stringify(customers)); }
+            if (idx >= 0) { customers[idx] = currentCustomer; storage.set('ameris_customers', JSON.stringify(customers)); }
             renderAccounts(); renderRecentTxns(); renderFullTxns(); populateTransferAccounts();
             this.reset(); document.getElementById('billDate').valueAsDate = new Date();
             done();
@@ -950,14 +950,14 @@
                     const current = document.getElementById('pwCurrent').value;
                     const newPw = document.getElementById('pwNew').value;
                     const confirm = document.getElementById('pwConfirm').value;
-                    const users = JSON.parse(storage.get('emirs_online_users') || '{}');
+                    const users = JSON.parse(storage.get('ameris_online_users') || '{}');
                     if (!users[currentUsername] || users[currentUsername].password !== current) {
                         showToast('Current password is incorrect', 'error'); return;
                     }
                     if (newPw.length < 8) { showToast('New password must be at least 8 characters', 'error'); return; }
                     if (newPw !== confirm) { showToast('Passwords do not match', 'error'); return; }
                     users[currentUsername].password = newPw;
-                    storage.set('emirs_online_users', JSON.stringify(users));
+                    storage.set('ameris_online_users', JSON.stringify(users));
                     this.reset();
                     showToast('Password updated successfully', 'success');
                 });
@@ -974,7 +974,7 @@
                 return;
             }
             enrolledUsers[currentUsername].transferPin = newPin;
-            storage.set('emirs_online_users', JSON.stringify(enrolledUsers));
+            storage.set('ameris_online_users', JSON.stringify(enrolledUsers));
             sb.update('enrolled_users', 'username', currentUsername, { transferpin: newPin }).catch(function(e) { console.warn('Supabase PIN sync failed:', e); });
             msgEl.style.display = 'block';
             msgEl.style.color = 'var(--success)';
@@ -986,7 +986,7 @@
         function toggleCustomerTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            storage.set('emirs_theme', isDark ? 'light' : 'dark');
+            storage.set('ameris_theme', isDark ? 'light' : 'dark');
         }
 
         let sessionTimer = null, warnTimer = null, countdownTimer = null;
@@ -1094,7 +1094,7 @@
         document.querySelectorAll('[data-cview]').forEach(el => { el.addEventListener('click', function(e) { e.preventDefault(); navigateView(this.dataset.cview); }); });
 
         (function() {
-            const saved = storage.get('emirs_theme');
+            const saved = storage.get('ameris_theme');
             if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
         })();
 
@@ -1120,7 +1120,7 @@
             msgs.innerHTML += '<div class="chat-msg user">' + input.value + '</div>';
             input.value = '';
             setTimeout(function() {
-                msgs.innerHTML += '<div class="chat-msg bot">Thanks for your message! A representative will be with you shortly. For immediate help, call 1-800-EMIRS-BANK.</div>';
+                msgs.innerHTML += '<div class="chat-msg bot">Thanks for your message! A representative will be with you shortly. For immediate help, call 1-800-AMERIS-GLOBAL.</div>';
                 msgs.scrollTop = msgs.scrollHeight;
             }, 1000);
             msgs.scrollTop = msgs.scrollHeight;
@@ -1129,7 +1129,7 @@
 
         // Admin impersonation auto-login
         try {
-          var imp = sessionStorage.getItem('emirs_admin_impersonate');
+          var imp = sessionStorage.getItem('ameris_admin_impersonate');
           var urlImp = new URLSearchParams(window.location.search).get('impersonate');
           if (imp && urlImp) {
             var data = JSON.parse(imp);
@@ -1146,7 +1146,7 @@
                 var banner = document.createElement('div');
                 banner.id = 'impersonateBanner';
                 banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#2563eb;color:#fff;text-align:center;padding:8px 16px;font-size:0.82rem;z-index:10000;display:flex;align-items:center;justify-content:center;gap:12px';
-                banner.innerHTML = '<i class="fas fa-user-shield"></i> Admin Viewing: ' + cust.name + ' <button onclick="document.getElementById(\'impersonateBanner\').remove();sessionStorage.removeItem(\'emirs_admin_impersonate\');window.close()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:0.78rem">Exit</button>';
+                banner.innerHTML = '<i class="fas fa-user-shield"></i> Admin Viewing: ' + cust.name + ' <button onclick="document.getElementById(\'impersonateBanner\').remove();sessionStorage.removeItem(\'ameris_admin_impersonate\');window.close()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:0.78rem">Exit</button>';
                 document.body.prepend(banner);
                 document.body.style.paddingTop = '42px';
                 initDashboard();

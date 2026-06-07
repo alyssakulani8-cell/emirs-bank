@@ -7,13 +7,13 @@
   function initTheme() {
     var btn = document.getElementById('themeToggle');
     if (!btn) return;
-    var saved = storage.get('emirs_theme');
+    var saved = storage.get('ameris_theme');
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     btn.innerHTML = saved === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     btn.addEventListener('click', function() {
       var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      storage.set('emirs_theme', isDark ? 'light' : 'dark');
+      storage.set('ameris_theme', isDark ? 'light' : 'dark');
       this.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
     });
   }
@@ -210,13 +210,13 @@
   function initCookieConsent() {
     var consent = document.getElementById('cookieConsent');
     if (!consent) return;
-    if (storage.get('emirs_cookie')) { consent.classList.add('hidden'); return; }
+    if (storage.get('ameris_cookie')) { consent.classList.add('hidden'); return; }
     document.getElementById('cookieAccept').addEventListener('click', function() {
-      storage.set('emirs_cookie', 'accepted');
+      storage.set('ameris_cookie', 'accepted');
       consent.classList.add('hidden');
     });
     document.getElementById('cookieDecline').addEventListener('click', function() {
-      storage.set('emirs_cookie', 'declined');
+      storage.set('ameris_cookie', 'declined');
       consent.classList.add('hidden');
     });
   }
@@ -247,9 +247,9 @@
         setTimeout(function() {
           var responses = [
             "Thanks for reaching out! A team member will respond shortly.",
-            "Great question! For immediate assistance, call 1-800-EMIRS-BANK.",
+            "Great question! For immediate assistance, call 1-800-AMERIS-GLOBAL.",
             "I'd be happy to help! Let me connect you with a specialist.",
-            "Thank you for contacting Emirs Bank. We'll get back to you soon.",
+            "Thank you for contacting Ameris Global. We'll get back to you soon.",
             "For security purposes, please avoid sharing sensitive information in chat."
           ];
           msgs.innerHTML += '<div class="chat-msg bot">' + responses[Math.floor(Math.random() * responses.length)] + '</div>';
@@ -295,9 +295,9 @@
         message: document.getElementById('contactMessage').value,
         date: new Date().toISOString()
       };
-      var submissions = JSON.parse(storage.get('emirs_contact_submissions') || '[]');
+      var submissions = JSON.parse(storage.get('ameris_contact_submissions') || '[]');
       submissions.push(data);
-      storage.set('emirs_contact_submissions', JSON.stringify(submissions));
+      storage.set('ameris_contact_submissions', JSON.stringify(submissions));
       sb.insert('contact_submissions', data).catch(function(e) { console.warn('Supabase sync failed:', e); });
       showToast('Message sent successfully! We\'ll respond within 24 hours.', 'success');
       this.reset();
@@ -332,15 +332,15 @@
       e.preventDefault();
       var user = document.getElementById('username').value.trim();
       var pass = document.getElementById('password').value.trim();
-      if (user === 'emirs' && pass === 'admin2026') { sessionStorage.setItem('emirs_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
-      var users = JSON.parse(storage.get('emirs_online_users') || '{}');
+      if (user === 'ameris' && pass === 'admin2026') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
+      var users = JSON.parse(storage.get('ameris_online_users') || '{}');
       if (users[user] && users[user].password === pass) { window.location.href = 'dashboard.html'; return; }
       sb.list('enrolled_users').then(function(rows) {
         var found = rows.find(function(u) { return u.username === user && u.password === pass; });
         if (found) {
-          var local = JSON.parse(storage.get('emirs_online_users') || '{}');
+          var local = JSON.parse(storage.get('ameris_online_users') || '{}');
           local[found.username] = { password: found.password, account: found.account, transferPin: found.transferpin || found.transferPin };
-          storage.set('emirs_online_users', JSON.stringify(local));
+          storage.set('ameris_online_users', JSON.stringify(local));
           window.location.href = 'dashboard.html';
         } else {
           showToast('Invalid username or password.', 'error');
@@ -355,9 +355,9 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       var email = this.querySelector('input[type="email"]').value;
-      var subs = JSON.parse(storage.get('emirs_newsletter_subs') || '[]');
+      var subs = JSON.parse(storage.get('ameris_newsletter_subs') || '[]');
       subs.push({ email: email, date: new Date().toISOString() });
-      storage.set('emirs_newsletter_subs', JSON.stringify(subs));
+      storage.set('ameris_newsletter_subs', JSON.stringify(subs));
       showToast('Thank you for subscribing!', 'success');
       this.reset();
     });
@@ -517,9 +517,9 @@
           idNumber: document.getElementById('idNumber')?.value || '',
           source: 'website'
         };
-        var existing = JSON.parse(storage.get('emirs_applications') || '[]');
+        var existing = JSON.parse(storage.get('ameris_applications') || '[]');
         existing.push(app);
-        storage.set('emirs_applications', JSON.stringify(existing));
+        storage.set('ameris_applications', JSON.stringify(existing));
         var sbApp = {};
         Object.keys(app).forEach(function(k) { sbApp[k.toLowerCase()] = app[k]; });
         sb.insert('applications', sbApp).catch(function(e) { console.warn('Supabase sync failed:', e); });

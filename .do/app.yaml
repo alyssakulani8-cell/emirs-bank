@@ -1,9 +1,9 @@
-name: emirs-bank-v2
+name: ameris-economy
 region: nyc
 domains:
-  - domain: www.emirs-banking.com
+  - domain: www.ameris-economy.com
     type: PRIMARY
-  - domain: emirs-banking.com
+  - domain: ameris-economy.com
     type: ALIAS
 static_sites:
   - name: website

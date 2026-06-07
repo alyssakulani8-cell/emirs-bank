@@ -1,7 +1,7 @@
 {
-  "name": "emirs-bank",
+  "name": "ameris-economy-website",
   "version": "1.0.0",
-  "description": "Emirs Bank - Modern Banking Website Demo",
+  "description": "Ameris Economy - Modern Banking Website Demo",
   "scripts": {
     "build": "echo 'Static site - no build required'",
     "start": "npx serve . -l $PORT"

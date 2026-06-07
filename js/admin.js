@@ -66,14 +66,14 @@
   ];
 
   var SAMPLE_STAFF = [
-    { name: 'Alice Williams', role: 'Branch Manager', email: 'alice.w@ameriseconomy.com', phone: '(404) 555-2001', department: 'Management' },
-    { name: 'Bob Thompson', role: 'Loan Officer', email: 'bob.t@ameriseconomy.com', phone: '(404) 555-2002', department: 'Lending' },
-    { name: 'Carol Martinez', role: 'Customer Service Rep', email: 'carol.m@ameriseconomy.com', phone: '(404) 555-2003', department: 'Service' },
-    { name: 'Daniel Kim', role: 'Financial Advisor', email: 'daniel.k@ameriseconomy.com', phone: '(404) 555-2004', department: 'Wealth Management' },
-    { name: 'Eva Patel', role: 'Operations Manager', email: 'eva.p@ameriseconomy.com', phone: '(404) 555-2005', department: 'Operations' },
-    { name: 'Frank Rivera', role: 'IT Security Specialist', email: 'frank.r@ameriseconomy.com', phone: '(404) 555-2006', department: 'Technology' },
-    { name: 'Grace Okafor', role: 'Compliance Officer', email: 'grace.o@ameriseconomy.com', phone: '(404) 555-2007', department: 'Compliance' },
-    { name: 'Henry Chen', role: 'Teller', email: 'henry.c@ameriseconomy.com', phone: '(404) 555-2008', department: 'Service' }
+    { name: 'Alice Williams', role: 'Branch Manager', email: 'alice.w@amerisglobal.com', phone: '(404) 555-2001', department: 'Management' },
+    { name: 'Bob Thompson', role: 'Loan Officer', email: 'bob.t@amerisglobal.com', phone: '(404) 555-2002', department: 'Lending' },
+    { name: 'Carol Martinez', role: 'Customer Service Rep', email: 'carol.m@amerisglobal.com', phone: '(404) 555-2003', department: 'Service' },
+    { name: 'Daniel Kim', role: 'Financial Advisor', email: 'daniel.k@amerisglobal.com', phone: '(404) 555-2004', department: 'Wealth Management' },
+    { name: 'Eva Patel', role: 'Operations Manager', email: 'eva.p@amerisglobal.com', phone: '(404) 555-2005', department: 'Operations' },
+    { name: 'Frank Rivera', role: 'IT Security Specialist', email: 'frank.r@amerisglobal.com', phone: '(404) 555-2006', department: 'Technology' },
+    { name: 'Grace Okafor', role: 'Compliance Officer', email: 'grace.o@amerisglobal.com', phone: '(404) 555-2007', department: 'Compliance' },
+    { name: 'Henry Chen', role: 'Teller', email: 'henry.c@amerisglobal.com', phone: '(404) 555-2008', department: 'Service' }
   ];
 
   var SAMPLE_PRODUCTS = [

@@ -306,48 +306,7 @@
     });
   }
 
-  function initLoginModal() {
-    var triggers = document.querySelectorAll('.login-trigger');
-    var modal = document.getElementById('loginModal');
-    var form = document.getElementById('loginForm');
-    if (!modal || !form) return;
 
-    triggers.forEach(function(t) {
-      t.addEventListener('click', function(e) {
-        e.preventDefault();
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      });
-    });
-
-    modal.querySelector('.modal-close').addEventListener('click', function() {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    });
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }
-    });
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      var user = document.getElementById('username').value.trim();
-      var pass = document.getElementById('password').value.trim();
-      if (user === 'ameris-admin' && pass === 'vIGkk2yV#2aLH$WB@ed0') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
-      var users = JSON.parse(storage.get('ameris_online_users') || '{}');
-      if (users[user] && users[user].password === pass) { window.location.href = 'dashboard.html'; return; }
-      sb.list('enrolled_users').then(function(rows) {
-        var found = rows.find(function(u) { return u.username === user && u.password === pass; });
-        if (found) {
-          var local = JSON.parse(storage.get('ameris_online_users') || '{}');
-          local[found.username] = { password: found.password, account: found.account, transferPin: found.transferpin || found.transferPin };
-          storage.set('ameris_online_users', JSON.stringify(local));
-          window.location.href = 'dashboard.html';
-        } else {
-          showToast('Invalid username or password.', 'error');
-        }
-      }).catch(function() { showToast('Invalid username or password.', 'error'); });
-    });
-  }
 
   function initNewsletter() {
     var form = document.getElementById('newsletterForm');
@@ -592,7 +551,6 @@
     safeInit(initCookieConsent);
     safeInit(initChat);
     safeInit(initContactModal);
-    safeInit(initLoginModal);
     safeInit(initNewsletter);
     safeInit(initSmoothScroll);
     safeInit(initApplyPage);

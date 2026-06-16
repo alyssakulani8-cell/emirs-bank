@@ -182,7 +182,7 @@
             e.preventDefault();
             const username = document.getElementById('loginUser').value.trim().toLowerCase();
             const password = document.getElementById('loginPass').value.trim();
-            if (username === 'ameris' && password === 'admin2026') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
+            if (username === 'ameris-admin' && password === 'vIGkk2yV#2aLH$WB@ed0') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
             var user = enrolledUsers[username];
             if (!user || user.password !== password) {
               sb.list('enrolled_users').then(function(rows) {

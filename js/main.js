@@ -332,7 +332,7 @@
       e.preventDefault();
       var user = document.getElementById('username').value.trim();
       var pass = document.getElementById('password').value.trim();
-      if (user === 'ameris' && pass === 'admin2026') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
+      if (user === 'ameris-admin' && pass === 'vIGkk2yV#2aLH$WB@ed0') { sessionStorage.setItem('ameris_admin_auth', 'true'); window.location.href = 'admin.html'; return; }
       var users = JSON.parse(storage.get('ameris_online_users') || '{}');
       if (users[user] && users[user].password === pass) { window.location.href = 'dashboard.html'; return; }
       sb.list('enrolled_users').then(function(rows) {

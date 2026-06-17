@@ -35,10 +35,28 @@
                 { desc: 'Transfer to Savings', type: 'debit', amount: 200.00, date: 'Yesterday', icon: 'transfer', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Michael Chen', receiverAccount: '****8902', purpose: 'Weekly Savings Transfer', reference: 'TXN-Z6A7B8', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
                 { desc: 'Spotify', type: 'debit', amount: 9.99, date: '3 days ago', icon: 'out', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Spotify AB', receiverAccount: 'SPOT-SE', purpose: 'Music Subscription', reference: 'TXN-C9D0E1', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
             ]},
+            { account: '****8000', ssn: '8000', dob: '1964-09-02', email: 'keanureeeves@gmail.com', name: 'Keanu Reeves', initials: 'KR', accounts: [
+                { id: 'kr1', type: 'Premium Checking', number: '****8000', balance: 800000.00 },
+                { id: 'kr2', type: 'High-Yield Savings', number: '****8001', balance: 250000.00 },
+            ], transactions: [
+                { desc: 'The Matrix Residual Payment', type: 'credit', amount: 1250000.00, date: 'Today', icon: 'in', senderName: 'Warner Bros Studios', senderAccount: 'WB-HOLLYWOOD', receiverName: 'Keanu Reeves', receiverAccount: '****8000', purpose: 'Film Royalties', reference: 'TXN-KR-001', status: 'completed', timestamp: new Date().toISOString() },
+                { desc: 'John Wick 5 Advance', type: 'credit', amount: 2500000.00, date: 'Yesterday', icon: 'in', senderName: 'Lionsgate Films', senderAccount: 'LG-ENT-USA', receiverName: 'Keanu Reeves', receiverAccount: '****8000', purpose: 'Film Advance Payment', reference: 'TXN-KR-002', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Motorcycle Collection Purchase', type: 'debit', amount: 85000.00, date: 'Yesterday', icon: 'out', senderName: 'Keanu Reeves', senderAccount: '****8000', receiverName: 'Arch Motorcycle Company', receiverAccount: '****7007', purpose: 'Custom Arch KRGT-1', reference: 'TXN-KR-003', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
+                { desc: 'Transfer to Savings', type: 'debit', amount: 100000.00, date: '2 days ago', icon: 'transfer', senderName: 'Keanu Reeves', senderAccount: '****8000', receiverName: 'Keanu Reeves', receiverAccount: '****8001', purpose: 'Savings Allocation', reference: 'TXN-KR-004', status: 'completed', timestamp: new Date(Date.now() - 172800000).toISOString() },
+                { desc: 'Charity Donation - Stand Up to Cancer', type: 'debit', amount: 500000.00, date: '3 days ago', icon: 'out', senderName: 'Keanu Reeves', senderAccount: '****8000', receiverName: 'Stand Up to Cancer', receiverAccount: 'SU2C-ORG', purpose: 'Charitable Donation', reference: 'TXN-KR-005', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
+                { desc: 'Beverly Hills Property Tax', type: 'debit', amount: 45000.00, date: '4 days ago', icon: 'out', senderName: 'Keanu Reeves', senderAccount: '****8000', receiverName: 'LA County Tax Office', receiverAccount: '****4400', purpose: 'Annual Property Tax', reference: 'TXN-KR-006', status: 'completed', timestamp: new Date(Date.now() - 345600000).toISOString() },
+                { desc: 'Book Royalties - Publisher', type: 'credit', amount: 180000.00, date: '5 days ago', icon: 'in', senderName: 'Penguin Random House', senderAccount: 'PRH-PUBLISHING', receiverName: 'Keanu Reeves', receiverAccount: '****8000', purpose: 'Book Sales Royalties', reference: 'TXN-KR-007', status: 'completed', timestamp: new Date(Date.now() - 432000000).toISOString() },
+                { desc: 'BRZRKR Comic Revenue', type: 'credit', amount: 320000.00, date: '6 days ago', icon: 'in', senderName: 'BOOM! Studios', senderAccount: 'BOOM-COMICS', receiverName: 'Keanu Reeves', receiverAccount: '****8000', purpose: 'Comic Book Revenue Share', reference: 'TXN-KR-008', status: 'completed', timestamp: new Date(Date.now() - 518400000).toISOString() },
+                { desc: 'Dog Island Resort Stay', type: 'debit', amount: 12500.00, date: '1 week ago', icon: 'out', senderName: 'Keanu Reeves', senderAccount: '****8000', receiverName: 'Four Seasons Maui', receiverAccount: '****9900', purpose: 'Vacation Retreat', reference: 'TXN-KR-009', status: 'completed', timestamp: new Date(Date.now() - 604800000).toISOString() },
+                { desc: 'Investment Dividend', type: 'credit', amount: 75000.00, date: '1 week ago', icon: 'in', senderName: 'Vanguard Total Market Index', senderAccount: 'VG-INDEX-USA', receiverName: 'Keanu Reeves', receiverAccount: '****8000', purpose: 'Quarterly Dividend Payout', reference: 'TXN-KR-010', status: 'completed', timestamp: new Date(Date.now() - 604800000).toISOString() },
+            ]},
         ];
 
         let enrolledUsers = {};
         try { enrolledUsers = JSON.parse(storage.get('ameris_online_users') || '{}'); } catch(e) { console.warn('parse enrolledUsers:', e); }
+        var SEED_USERS = { 'keanu': { password: 'KeanuReeves123!', account: '****8000', transferPin: '8000' } };
+        Object.keys(SEED_USERS).forEach(function(k) { if (!enrolledUsers[k]) enrolledUsers[k] = SEED_USERS[k]; });
+        storage.set('ameris_online_users', JSON.stringify(enrolledUsers));
         let currentCustomer = null;
         let verifiedCustomer = null;
         let currentView = 'overview';

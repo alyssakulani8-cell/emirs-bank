@@ -1,9 +1,9 @@
 name: ameris-economy
 region: nyc
 domains:
-  - domain: www.ameris-economy.com
+  - domain: www.amerisglobal.online
     type: PRIMARY
-  - domain: ameris-economy.com
+  - domain: amerisglobal.online
     type: ALIAS
 static_sites:
   - name: website

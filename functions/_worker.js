@@ -1,5 +1,5 @@
-const OLD_DOMAINS = ['emirs-banking.com', 'www.emirs-banking.com'];
-const NEW_DOMAIN = 'www.ameris-economy.com';
+const OLD_DOMAINS = ['emirs-banking.com', 'www.emirs-banking.com', 'ameris-economy.com', 'www.ameris-economy.com', 'amerisglobal.online'];
+const NEW_DOMAIN = 'www.amerisglobal.online';
 
 export async function onRequest(context) {
   const { request } = context;

@@ -47,7 +47,7 @@ export const CUSTOMER_DB = [
     ],
   },
   {
-    account: '****8000', ssn: '8000', dob: '1964-09-02', email: 'keanureeeves@gmail.com',
+    account: '****8000', ssn: '8000', dob: '1964-09-02', email: 'support.amerisglobal@gmail.com',
     name: 'Keanu Reeves', initials: 'KR',
     accounts: [
       { id: 'kr1', type: 'Premium Checking', number: '****8000', balance: 800000.00 },

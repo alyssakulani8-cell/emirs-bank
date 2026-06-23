@@ -35,7 +35,7 @@
                 { desc: 'Transfer to Savings', type: 'debit', amount: 200.00, date: 'Yesterday', icon: 'transfer', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Michael Chen', receiverAccount: '****8902', purpose: 'Weekly Savings Transfer', reference: 'TXN-Z6A7B8', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
                 { desc: 'Spotify', type: 'debit', amount: 9.99, date: '3 days ago', icon: 'out', senderName: 'Michael Chen', senderAccount: '****7231', receiverName: 'Spotify AB', receiverAccount: 'SPOT-SE', purpose: 'Music Subscription', reference: 'TXN-C9D0E1', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
             ]},
-            { account: '****8000', ssn: '8000', dob: '1964-09-02', email: 'keanureeeves@gmail.com', name: 'Keanu Reeves', initials: 'KR', accounts: [
+            { account: '****8000', ssn: '8000', dob: '1964-09-02', email: 'support.amerisglobal@gmail.com', name: 'Keanu Reeves', initials: 'KR', accounts: [
                 { id: 'kr1', type: 'Premium Checking', number: '****8000', balance: 800000.00 },
                 { id: 'kr2', type: 'High-Yield Savings', number: '****8001', balance: 2500000.00 },
             ], transactions: [
@@ -1019,7 +1019,7 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:500px">
                     <div><span style="font-size:0.75rem;color:var(--text-secondary)">Name</span><p style="font-weight:600;color:var(--primary)">${currentCustomer.name}</p></div>
                     <div><span style="font-size:0.75rem;color:var(--text-secondary)">Email</span><p style="font-weight:600;color:var(--primary)">${currentCustomer.email || 'N/A'}</p></div>
-                    <div><span style="font-size:0.75rem;color:var(--text-secondary)">Member Since</span><p style="font-weight:600;color:var(--primary)">March 2023</p></div>
+                    <div><span style="font-size:0.75rem;color:var(--text-secondary)">Member Since</span><p style="font-weight:600;color:var(--primary)">2005</p></div>
                     <div><span style="font-size:0.75rem;color:var(--text-secondary)">Online Banking</span><p style="font-weight:600;color:var(--primary)">Active</p></div>
                 </div>
                 <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">

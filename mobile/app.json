@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "owner": "chka_dibia",
+    "name": "Ameris Global",
+    "slug": "ameris-global-mobile",
+    "version": "1.0.0",
+    "description": "Ameris Global - Modern Banking for Your Financial Future",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#0a1628",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.amerisglobal.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a1628"
+      },
+      "package": "com.amerisglobal.mobile"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "264d4d73-3bfc-48bc-907a-25a6c267b4f0"
+      }
+    }
+  }
+}

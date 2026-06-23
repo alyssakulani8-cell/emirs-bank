@@ -214,9 +214,10 @@
             <form id="bankLoginForm">
                 <div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="Enter your username" required autocomplete="username"></div>
                 <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter your password" required autocomplete="current-password"></div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> Sign In</button>
-            </form>
-            <div class="auth-divider"><span>Not enrolled?</span></div>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-lock"></i> Sign In</button>
+                            <button type="button" class="btn btn-outline" id="biometricLoginBtn" style="width:100%;justify-content:center;padding:12px;margin-top:12px;display:none" onclick="loginWithBiometrics()"><i class="fas fa-fingerprint"></i> Sign In with Fingerprint</button>
+                        </form>
+                        <div class="auth-divider"><span>Not enrolled?</span></div>
             <button class="btn btn-outline" style="width:100%;justify-content:center;padding:12px" onclick="showEnrollment()"><i class="fas fa-user-plus"></i> Enroll in Online Banking</button>
             <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:center">
                 <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px">After enrolling, use your new username to sign in</p>
@@ -408,7 +409,7 @@
                     <div class="card"><div class="card-header"><h3>Support</h3></div><div class="card-body">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
                             <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-phone-alt" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Call Us</h4><p style="font-size:0.85rem;color:var(--text-secondary)">1-800-AMERIS-GLOBAL</p></div>
-                            <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-envelope" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Email Us</h4><p style="font-size:0.85rem;color:var(--text-secondary)">contact@amerisglobal.com</p></div>
+                            <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-envelope" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Email Us</h4><p style="font-size:0.85rem;color:var(--text-secondary)">support.amerisglobal@gmail.com</p></div>
                             <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-comment-dots" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Live Chat</h4><p style="font-size:0.85rem;color:var(--text-secondary)">Available 6AM-10PM EST</p></div>
                             <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-map-marker-alt" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Branch Locator</h4><p style="font-size:0.85rem;color:var(--text-secondary)">200+ locations</p></div>
                         </div>
@@ -599,6 +600,7 @@
     </div>
 
     <script src="js/supabase.js"></script>
+    <script src="js/capacitor-bridge.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>

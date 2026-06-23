@@ -221,6 +221,7 @@
             currentCustomer = allCustomers.find(c => c.account === user.account);
             if (!currentCustomer) { showToast('Account not found.', 'error'); return; }
             currentUsername = username;
+            try { if (window.CapacitorBridge && window.CapacitorBridge.isNative) { window.CapacitorBridge.setCredentials(username, user.password).catch(function() {}); } } catch(e) {}
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('bankDashboard').style.display = 'flex';
             initDashboard();
@@ -229,6 +230,44 @@
             refreshInterval = setInterval(refreshCustomerData, 15000);
             }
           }); } catch(e) { console.warn('login form init:', e); }
+
+        try {
+          if (window.CapacitorBridge && window.CapacitorBridge.isNative) {
+            var bioBtn = document.getElementById('biometricLoginBtn');
+            window.CapacitorBridge.checkBiometrics().then(function(result) {
+              if (result.isAvailable) {
+                bioBtn.style.display = 'flex';
+                window.CapacitorBridge.getCredentials().then(function(creds) {
+                  if (creds.username) {
+                    bioBtn.innerHTML = '<i class="fas fa-fingerprint"></i> Sign In as ' + creds.username;
+                  }
+                }).catch(function() {});
+              }
+            }).catch(function() {});
+          }
+        } catch(e) { console.warn('biometric init:', e); }
+
+        window.loginWithBiometrics = function() {
+          if (!window.CapacitorBridge || !window.CapacitorBridge.isNative) return;
+          window.CapacitorBridge.biometricAuth('Sign in to your Ameris Global account').then(function() {
+            return window.CapacitorBridge.getCredentials();
+          }).then(function(creds) {
+            if (!creds.username) { showToast('No saved credentials found. Sign in manually first.', 'warning'); return; }
+            document.getElementById('loginUser').value = creds.username;
+            var users = JSON.parse(storage.get('ameris_online_users') || '{}');
+            var user = users[creds.username];
+            if (user) {
+              document.getElementById('loginPass').value = user.password;
+              document.getElementById('bankLoginForm').dispatchEvent(new Event('submit'));
+            } else {
+              showToast('Account not found. Please sign in manually.', 'error');
+            }
+          }).catch(function(err) {
+            if (err && err.message && err.message.indexOf('cancel') === -1) {
+              showToast('Biometric verification failed', 'error');
+            }
+          });
+        };
 
         try { document.getElementById('logoutBank').addEventListener('click', function(e) {
             e.preventDefault(); currentCustomer = null; currentUsername = '';

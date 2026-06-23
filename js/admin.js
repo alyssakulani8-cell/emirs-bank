@@ -169,6 +169,8 @@
     if (page === 'branches') renderBranches();
     if (page === 'staff') renderStaff();
     if (page === 'products') renderProducts();
+    if (page === 'cms') renderCms();
+    if (page === 'settings') renderSettings();
     if (page === 'audit') renderAudit();
     if (window.innerWidth <= 768) {
       var s = document.getElementById('sidebar');
@@ -339,21 +341,53 @@
     showToast('Transactions exported', 'success');
   };
 
+  window.exportUsersCSV = function() {
+    var rows = [['Name','Email','Account','Balance','Status']];
+    SAMPLE_USERS.forEach(function(u) { rows.push([u.name, u.email, u.account, u.balance.toFixed(2), u.status]); });
+    downloadCSV(rows, 'users_export.csv');
+    showToast('Users exported', 'success');
+  };
+
+  window.exportAuditCSV = function() {
+    var rows = [['Timestamp','User','Action','Details','IP']];
+    SAMPLE_AUDIT.forEach(function(a) { rows.push([a.timestamp, a.user, a.action, a.details, a.ip]); });
+    downloadCSV(rows, 'audit_export.csv');
+    showToast('Audit log exported', 'success');
+  };
+
   window.refreshTransactions = function() {
     renderFilteredTransactions();
     showToast('Transactions refreshed', 'success');
   };
 
   window.batchApprove = function() {
-    showToast('Selected transactions approved', 'success');
-    document.querySelectorAll('.txn-check:checked').forEach(function(cb) { cb.checked = false; });
+    var checked = document.querySelectorAll('.txn-check:checked');
+    var count = 0;
+    checked.forEach(function(cb) {
+      var id = cb.value;
+      SAMPLE_TRANSACTIONS.forEach(function(t) {
+        if (t.id === id && t.status !== 'completed') { t.status = 'completed'; count++; }
+      });
+      cb.checked = false;
+    });
     updateBatchToolbar();
+    renderFilteredTransactions();
+    showToast(count + ' transaction' + (count !== 1 ? 's' : '') + ' approved', 'success');
   };
 
   window.batchReject = function() {
-    showToast('Selected transactions rejected', 'error');
-    document.querySelectorAll('.txn-check:checked').forEach(function(cb) { cb.checked = false; });
+    var checked = document.querySelectorAll('.txn-check:checked');
+    var count = 0;
+    checked.forEach(function(cb) {
+      var id = cb.value;
+      SAMPLE_TRANSACTIONS.forEach(function(t) {
+        if (t.id === id && t.status !== 'flagged') { t.status = 'flagged'; count++; }
+      });
+      cb.checked = false;
+    });
     updateBatchToolbar();
+    renderFilteredTransactions();
+    showToast(count + ' transaction' + (count !== 1 ? 's' : '') + ' flagged', 'warning');
   };
 
   function renderApplications() {
@@ -711,7 +745,10 @@
           '<td style="font-family:monospace">' + accountNum + '</td>' +
           '<td><strong>$' + balance.toLocaleString(undefined, {minimumFractionDigits:2}) + '</strong></td>' +
           '<td><span class="badge ' + statusClass + '">' + status + '</span></td>' +
-          '<td><button class="btn btn-sm btn-ghost" onclick="viewCustomerDetail(\'' + u._key.replace(/'/g, "\\'") + '\')"><i class="fas fa-eye"></i></button></td></tr>';
+          '<td><div style="display:flex;gap:4px">' +
+          '<button class="btn btn-sm btn-ghost" onclick="viewCustomerDetail(\'' + u._key.replace(/'/g, "\\'") + '\')"><i class="fas fa-eye"></i></button>' +
+          '<button class="btn btn-sm btn-ghost" onclick="showAddUser(\'' + accountNum.replace(/'/g, "\\'") + '\')"><i class="fas fa-edit"></i></button>' +
+          '<button class="btn btn-sm btn-ghost" onclick="deleteUser(\'' + accountNum.replace(/'/g, "\\'") + '\')"><i class="fas fa-trash"></i></button></div></td></tr>';
       }).join('');
     });
   }
@@ -759,7 +796,80 @@
     });
   };
 
-  window.showAddUser = function() { showToast('Add user feature coming soon', 'info'); };
+  window.showAddUser = function(key) {
+    var modal = document.getElementById('userFormModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'userFormModal';
+      modal.innerHTML = '<div class="modal" style="max-width:480px"><div class="modal-header"><h3 id="userFormTitle">Add User</h3><button class="modal-close" onclick="closeModal(\'userFormModal\')">&times;</button></div><div class="modal-body" id="userFormBody">' +
+        '<div class="form-group"><label>Name</label><input type="text" id="uf-name" class="form-input"></div>' +
+        '<div class="form-group"><label>Email</label><input type="email" id="uf-email" class="form-input"></div>' +
+        '<div class="form-group"><label>Account Number</label><input type="text" id="uf-account" class="form-input"></div>' +
+        '<div class="form-group"><label>Balance</label><input type="number" id="uf-balance" class="form-input" step="0.01"></div>' +
+        '<div class="form-group"><label>Status</label><select id="uf-status" class="form-input"><option value="active">Active</option><option value="frozen">Frozen</option><option value="suspended">Suspended</option></select></div>' +
+        '</div><div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-ghost" onclick="closeModal(\'userFormModal\')">Cancel</button><button class="btn btn-primary" id="userFormSubmit">Save</button></div></div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+    }
+    var title = document.getElementById('userFormTitle');
+    var submitBtn = document.getElementById('userFormSubmit');
+    if (key) {
+      var existing = SAMPLE_USERS.find(function(u) { return u.account === key; });
+      if (existing) {
+        document.getElementById('uf-name').value = existing.name;
+        document.getElementById('uf-email').value = existing.email;
+        document.getElementById('uf-account').value = existing.account;
+        document.getElementById('uf-balance').value = existing.balance;
+        document.getElementById('uf-status').value = existing.status;
+        title.textContent = 'Edit User';
+        submitBtn.onclick = function() {
+          var idx = SAMPLE_USERS.findIndex(function(u) { return u.account === key; });
+          if (idx !== -1) {
+            SAMPLE_USERS[idx] = {
+              name: document.getElementById('uf-name').value,
+              email: document.getElementById('uf-email').value,
+              account: document.getElementById('uf-account').value,
+              balance: parseFloat(document.getElementById('uf-balance').value) || 0,
+              status: document.getElementById('uf-status').value
+            };
+            closeModal('userFormModal');
+            renderUsers();
+            showToast('User updated', 'success');
+          }
+        };
+      }
+    } else {
+      document.getElementById('uf-name').value = '';
+      document.getElementById('uf-email').value = '';
+      document.getElementById('uf-account').value = '';
+      document.getElementById('uf-balance').value = '';
+      document.getElementById('uf-status').value = 'active';
+      title.textContent = 'Add User';
+      submitBtn.onclick = function() {
+        SAMPLE_USERS.push({
+          name: document.getElementById('uf-name').value,
+          email: document.getElementById('uf-email').value,
+          account: document.getElementById('uf-account').value,
+          balance: parseFloat(document.getElementById('uf-balance').value) || 0,
+          status: document.getElementById('uf-status').value
+        });
+        closeModal('userFormModal');
+        renderUsers();
+        showToast('User added', 'success');
+      };
+    }
+    modal.classList.add('active');
+  };
+
+  window.deleteUser = function(key) {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    var idx = SAMPLE_USERS.findIndex(function(u) { return u.account === key; });
+    if (idx === -1) { showToast('User not found', 'error'); return; }
+    SAMPLE_USERS.splice(idx, 1);
+    renderUsers();
+    showToast('User deleted', 'success');
+  };
 
   window.resetCustomerPassword = function(username) {
     var users = JSON.parse(storage.get('ameris_online_users') || '{}');
@@ -937,9 +1047,11 @@
   function renderBranches() {
     var grid = document.getElementById('branchesGrid');
     if (!grid) return;
-    grid.innerHTML = SAMPLE_BRANCHES.map(function(b) {
+    grid.innerHTML = SAMPLE_BRANCHES.map(function(b, i) {
       return '<div class="branch-card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start">' +
         '<h4>' + b.name + '</h4>' +
+        '<button class="btn btn-sm btn-ghost" onclick="deleteBranch(' + i + ')" style="color:var(--error)"><i class="fas fa-trash"></i></button></div>' +
         '<p><i class="fas fa-map-pin" style="color:var(--accent-dark);width:16px"></i> ' + b.address + '</p>' +
         '<p><i class="fas fa-phone" style="color:var(--accent-dark);width:16px"></i> ' + b.phone + '</p>' +
         '<p><i class="fas fa-clock" style="color:var(--accent-dark);width:16px"></i> ' + b.hours + '</p>' +
@@ -948,7 +1060,20 @@
     }).join('');
   }
 
-  window.showAddBranch = function() { showToast('Add branch feature coming soon', 'info'); };
+  window.showAddBranch = function() {
+    var name = prompt('Enter branch name:');
+    if (!name) return;
+    SAMPLE_BRANCHES.push({ name: name, address: 'New address', phone: '(404) 555-0000', hours: 'Mon-Fri 9AM-6PM', status: 'open' });
+    renderBranches();
+    showToast('Branch added', 'success');
+  };
+
+  window.deleteBranch = function(idx) {
+    if (!confirm('Delete this branch?')) return;
+    SAMPLE_BRANCHES.splice(idx, 1);
+    renderBranches();
+    showToast('Branch deleted', 'success');
+  };
 
   function renderStaff() {
     var container = document.getElementById('staffList');
@@ -967,19 +1092,59 @@
 
   window.filterStaff = renderStaff;
   document.getElementById('staffSearch')?.addEventListener('input', renderStaff);
-  window.showAddStaff = function() { showToast('Add staff feature coming soon', 'info'); };
+  window.showAddStaff = function() {
+    var name = prompt('Enter staff name:');
+    if (!name) return;
+    var role = prompt('Enter staff role:');
+    if (!role) return;
+    SAMPLE_STAFF.push({ name: name, role: role, email: '', phone: '', department: '' });
+    renderStaff();
+    showToast('Staff added', 'success');
+  };
 
   function renderProducts() {
     var tbody = document.getElementById('productsTableBody');
     if (!tbody) return;
-    tbody.innerHTML = SAMPLE_PRODUCTS.map(function(p) {
+    tbody.innerHTML = SAMPLE_PRODUCTS.map(function(p, i) {
       return '<tr><td><strong>' + p.name + '</strong></td><td>' + p.type + '</td><td>' + p.apy + '</td>' +
         '<td><span class="badge badge-success">' + p.status + '</span></td>' +
-        '<td><button class="btn btn-sm btn-ghost"><i class="fas fa-edit"></i></button></td></tr>';
+        '<td><button class="btn btn-sm btn-ghost" onclick="editProduct(' + i + ')"><i class="fas fa-edit"></i></button>' +
+        '<button class="btn btn-sm btn-ghost" onclick="deleteProduct(' + i + ')" style="color:var(--error)"><i class="fas fa-trash"></i></button></td></tr>';
     }).join('');
   }
 
-  window.showAddProduct = function() { showToast('Add product feature coming soon', 'info'); };
+  window.showAddProduct = function() {
+    var name = prompt('Enter product name:');
+    if (!name) return;
+    var type = prompt('Enter product type:');
+    if (!type) return;
+    var apy = prompt('Enter APY (e.g. 3.50%):');
+    if (!apy) return;
+    SAMPLE_PRODUCTS.push({ name: name, type: type, apy: apy, status: 'active' });
+    renderProducts();
+    showToast('Product added', 'success');
+  };
+
+  window.editProduct = function(idx) {
+    var p = SAMPLE_PRODUCTS[idx];
+    if (!p) return;
+    var name = prompt('Product name:', p.name);
+    if (!name) return;
+    var type = prompt('Product type:', p.type);
+    if (!type) return;
+    var apy = prompt('APY:', p.apy);
+    if (!apy) return;
+    SAMPLE_PRODUCTS[idx] = { name: name, type: type, apy: apy, status: p.status };
+    renderProducts();
+    showToast('Product updated', 'success');
+  };
+
+  window.deleteProduct = function(idx) {
+    if (!confirm('Delete this product?')) return;
+    SAMPLE_PRODUCTS.splice(idx, 1);
+    renderProducts();
+    showToast('Product deleted', 'success');
+  };
 
   function renderAudit() {
     var tbody = document.getElementById('auditLogBody');
@@ -994,6 +1159,32 @@
   }
 
   window.refreshAudit = function() { renderAudit(); showToast('Audit log refreshed', 'success'); };
+
+  function renderCms() {
+    var data = JSON.parse(storage.get('ameris_cms_content') || '{}');
+    var fields = document.querySelectorAll('.cms-fields input, .cms-fields textarea');
+    fields.forEach(function(f) {
+      if (data[f.id]) f.value = data[f.id];
+    });
+  }
+
+  function renderSettings() {
+    var settings = JSON.parse(storage.get('ameris_settings') || '{}');
+    var toggles = document.querySelectorAll('.settings-form input[type="checkbox"]');
+    toggles.forEach(function(el) {
+      if (settings[el.id] !== undefined) {
+        el.checked = settings[el.id];
+      }
+      if (!el._listenerAttached) {
+        el.addEventListener('change', function() {
+          var s = JSON.parse(storage.get('ameris_settings') || '{}');
+          s[this.id] = this.checked;
+          storage.set('ameris_settings', JSON.stringify(s));
+        });
+        el._listenerAttached = true;
+      }
+    });
+  }
 
   window.saveAllContent = function() {
     var fields = document.querySelectorAll('.cms-fields input, .cms-fields textarea');

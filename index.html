@@ -73,7 +73,7 @@
                 </ul>
                 <div class="nav-mobile-actions">
                     <a href="dashboard.html" class="btn btn-primary"><i class="fas fa-lock"></i> Online Banking</a>
-                    <a href="apply.html" class="btn btn-outline">Open An Account</a>
+                    <a href="#contactModal" class="btn btn-outline contact-trigger" data-subject="Open an Account">Open An Account</a>
                 </div>
             </div>
         </div>
@@ -117,7 +117,7 @@
                             <span><i class="fas fa-lock"></i> 256-bit Encryption</span>
                         </div>
                         <div class="hero-cta">
-                            <a href="apply.html" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Open An Account</a>
+                            <a href="#contactModal" class="btn btn-primary btn-lg contact-trigger" data-subject="Open an Account"><i class="fas fa-user-plus"></i> Open An Account</a>
                             <a href="#calculator" class="btn btn-outline btn-lg"><i class="fas fa-calculator"></i> Calculate Rates</a>
                         </div>
                         <div class="hero-stats">
@@ -308,19 +308,19 @@
                         <h3>High-Yield Savings</h3>
                         <div class="rate-apy"><span class="apy-value">4.50</span><span class="apy-percent">% APY</span></div>
                         <p>No minimum balance. No monthly fees. Your money working harder.</p>
-                        <a href="apply.html" class="btn btn-primary btn-block">Open Now</a>
+                        <a href="#contactModal" class="btn btn-primary btn-block contact-trigger" data-subject="High-Yield Savings">Open Now</a>
                     </div>
                     <div class="rate-card">
                         <h3>12-Month CD</h3>
                         <div class="rate-apy"><span class="apy-value">5.10</span><span class="apy-percent">% APY</span></div>
                         <p>Lock in a great rate. Minimum deposit of $1,000.</p>
-                        <a href="apply.html" class="btn btn-outline btn-block">Open Now</a>
+                        <a href="#contactModal" class="btn btn-outline btn-block contact-trigger" data-subject="12-Month CD">Open Now</a>
                     </div>
                     <div class="rate-card">
                         <h3>Money Market</h3>
                         <div class="rate-apy"><span class="apy-value">3.85</span><span class="apy-percent">% APY</span></div>
                         <p>Higher earnings with flexible access to your funds.</p>
-                        <a href="apply.html" class="btn btn-outline btn-block">Open Now</a>
+                        <a href="#contactModal" class="btn btn-outline btn-block contact-trigger" data-subject="Money Market">Open Now</a>
                     </div>
                 </div>
             </div>
@@ -359,7 +359,7 @@
                     <div>
                         <h3 style="font-size:1.4rem;color:var(--primary);margin-bottom:16px">Ready to find your dream home?</h3>
                         <p style="color:#64748b;line-height:1.8;margin-bottom:24px">Use our mortgage calculator to estimate your monthly payments. Our loan specialists are available to help you find the perfect mortgage product for your needs.</p>
-                        <a href="apply.html" class="btn btn-primary"><i class="fas fa-home"></i> Get Pre-Approved</a>
+                        <a href="#contactModal" class="btn btn-primary contact-trigger" data-subject="Get Pre-Approved"><i class="fas fa-home"></i> Get Pre-Approved</a>
                         <a href="#" class="btn btn-outline contact-trigger" data-subject="Mortgage Specialist" style="margin-left:12px;color:var(--primary);border-color:var(--border-light)"><i class="fas fa-phone-alt"></i> Talk to a Specialist</a>
                     </div>
                 </div>
@@ -442,7 +442,7 @@
                         <p>Join thousands of satisfied customers who trust Ameris Global for their financial needs.</p>
                     </div>
                     <div class="cta-actions">
-                        <a href="apply.html" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Open An Account Today</a>
+                        <a href="#contactModal" class="btn btn-primary btn-lg contact-trigger" data-subject="Open an Account"><i class="fas fa-user-plus"></i> Open An Account Today</a>
                         <a href="#" class="btn btn-outline btn-lg contact-trigger" data-subject="Phone Banking"><i class="fas fa-phone-alt"></i> 1-800-AMERIS-GLOBAL</a>
                     </div>
                     <div class="cta-badges">
@@ -492,7 +492,7 @@
                     <div class="footer-col">
                         <h4>Contact</h4>
                         <a href="#" class="contact-trigger"><i class="fas fa-envelope"></i> Contact Us</a>
-                        <a href="mailto:contact@amerisglobal.com"><i class="fas fa-envelope"></i> contact@amerisglobal.com</a>
+                        <a href="mailto:support.amerisglobal@gmail.com"><i class="fas fa-envelope"></i> support.amerisglobal@gmail.com</a>
                         <a href="#" class="contact-trigger" data-subject="Phone Banking"><i class="fas fa-phone-alt"></i> 1-800-AMERIS-GLOBAL</a>
                         <a href="#" class="contact-trigger" data-subject="Branch Locator"><i class="fas fa-map-marker-alt"></i> Find a Branch</a>
                         <div class="footer-routing"><small>Routing Number</small><strong>061201754</strong></div>
@@ -575,6 +575,7 @@
 
     
     <script src="js/supabase.js"></script>
+    <script src="js/capacitor-bridge.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

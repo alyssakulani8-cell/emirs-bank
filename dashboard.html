@@ -408,7 +408,7 @@
                 <div class="page-view" id="cview-support">
                     <div class="card"><div class="card-header"><h3>Support</h3></div><div class="card-body">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                            <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-phone-alt" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Call Us</h4><p style="font-size:0.85rem;color:var(--text-secondary)">1-800-AMERIS-GLOBAL</p></div>
+                            <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer" onclick="document.getElementById('dashboardContactModal').classList.add('active');document.body.style.overflow='hidden'"><i class="fas fa-phone-alt" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Call Us</h4><p style="font-size:0.85rem;color:var(--text-secondary)">1-800-AMERIS-GLOBAL</p></div>
                             <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-envelope" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Email Us</h4><p style="font-size:0.85rem;color:var(--text-secondary)">support.amerisglobal@gmail.com</p></div>
                             <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-comment-dots" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Live Chat</h4><p style="font-size:0.85rem;color:var(--text-secondary)">Available 6AM-10PM EST</p></div>
                             <div style="padding:20px;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center"><i class="fas fa-map-marker-alt" style="font-size:1.5rem;color:var(--accent-dark);margin-bottom:12px"></i><h4 style="font-size:0.95rem;color:var(--primary)">Branch Locator</h4><p style="font-size:0.85rem;color:var(--text-secondary)">200+ locations</p></div>
@@ -596,6 +596,37 @@
                 <button class="btn btn-primary" onclick="resetSessionTimer()"><i class="fas fa-sync"></i> Stay Logged In</button>
                 <button class="btn btn-outline" onclick="logoutSession()"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="dashboardContactModal" role="dialog" aria-labelledby="contactTitle">
+        <div class="modal" style="max-width:520px">
+            <button class="modal-close" onclick="document.getElementById('dashboardContactModal').classList.remove('active');document.body.style.overflow=''" aria-label="Close modal"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h2 id="contactTitle" style="font-size:1.3rem;color:var(--primary)">Contact Ameris Global</h2>
+                <p style="color:#64748b;font-size:0.9rem">We're here to help. Send us a message.</p>
+            </div>
+            <form style="padding:0 40px 32px">
+                <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div class="form-group"><label>Full Name <span style="color:var(--error)">*</span></label><input type="text" required placeholder="Your name" style="padding:10px 14px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem"></div>
+                    <div class="form-group"><label>Email <span style="color:var(--error)">*</span></label><input type="email" required placeholder="your@email.com" style="padding:10px 14px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem"></div>
+                </div>
+                <div class="form-group"><label>Subject <span style="color:var(--error)">*</span></label>
+                    <select style="padding:10px 14px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:var(--font)">
+                        <option value="">Select a topic...</option>
+                        <option value="Personal Banking">Personal Banking</option>
+                        <option value="Business Banking">Business Banking</option>
+                        <option value="Account Inquiry">Account Inquiry</option>
+                        <option value="Technical Support">Technical Support</option>
+                        <option value="General Question">General Question</option>
+                        <option value="Complaint">Complaint</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Message <span style="color:var(--error)">*</span></label>
+                    <textarea required rows="4" placeholder="How can we help you?" style="padding:10px 14px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:var(--font);resize:vertical"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary btn-block" style="margin-top:8px" onclick="alert('Thank you! Your message has been received. Our team will contact you within 24 hours.');document.getElementById('dashboardContactModal').classList.remove('active');document.body.style.overflow=''"><i class="fas fa-paper-plane"></i> Send Message</button>
+            </form>
         </div>
     </div>
 

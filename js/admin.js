@@ -9,18 +9,18 @@
   var notifications = [];
 
   var SAMPLE_TRANSACTIONS = [
-    { id: 'TXN-001', customer: 'Sarah Johnson', type: 'deposit', amount: 5200.00, account: '****4829', status: 'completed', date: 'Today, 9:32 AM', icon: 'in' },
-    { id: 'TXN-002', customer: 'Michael Chen', type: 'withdrawal', amount: 500.00, account: '****2190', status: 'completed', date: 'Today, 9:15 AM', icon: 'out' },
-    { id: 'TXN-003', customer: 'Emily Davis', type: 'transfer', amount: 1250.00, account: '****7712', status: 'pending', date: 'Today, 8:45 AM', icon: 'transfer' },
-    { id: 'TXN-004', customer: 'James Wilson', type: 'payment', amount: 2340.00, account: '****3345', status: 'flagged', date: 'Yesterday, 4:20 PM', icon: 'out' },
-    { id: 'TXN-005', customer: 'Maria Garcia', type: 'deposit', amount: 180.00, account: '****6678', status: 'completed', date: 'Yesterday, 3:10 PM', icon: 'in' },
-    { id: 'TXN-006', customer: 'Robert Brown', type: 'withdrawal', amount: 75.50, account: '****8902', status: 'completed', date: 'Yesterday, 2:30 PM', icon: 'out' },
-    { id: 'TXN-007', customer: 'Lisa Anderson', type: 'transfer', amount: 3200.00, account: '****7231', status: 'pending', date: 'Yesterday, 1:00 PM', icon: 'transfer' },
-    { id: 'TXN-008', customer: 'David Martinez', type: 'deposit', amount: 4500.00, account: '****4829', status: 'completed', date: '2 days ago, 11:20 AM', icon: 'in' },
-    { id: 'TXN-009', customer: 'Jennifer Taylor', type: 'payment', amount: 189.99, account: '****2190', status: 'completed', date: '2 days ago, 10:05 AM', icon: 'out' },
-    { id: 'TXN-010', customer: 'Thomas Jackson', type: 'withdrawal', amount: 2500.00, account: '****7712', status: 'flagged', date: '2 days ago, 8:30 AM', icon: 'out' },
-    { id: 'TXN-011', customer: 'Amanda White', type: 'deposit', amount: 3200.00, account: '****3345', status: 'completed', date: '3 days ago, 3:45 PM', icon: 'in' },
-    { id: 'TXN-012', customer: 'Christopher Lee', type: 'transfer', amount: 750.00, account: '****6678', status: 'completed', date: '3 days ago, 1:15 PM', icon: 'transfer' }
+    { id: 'TXN-001', customer: 'Sarah Johnson', type: 'deposit', amount: 5200.00, account: '4829173856', status: 'completed', date: 'Today, 9:32 AM', icon: 'in' },
+    { id: 'TXN-002', customer: 'Michael Chen', type: 'withdrawal', amount: 500.00, account: '2190467382', status: 'completed', date: 'Today, 9:15 AM', icon: 'out' },
+    { id: 'TXN-003', customer: 'Emily Davis', type: 'transfer', amount: 1250.00, account: '7712938164', status: 'pending', date: 'Today, 8:45 AM', icon: 'transfer' },
+    { id: 'TXN-004', customer: 'James Wilson', type: 'payment', amount: 2340.00, account: '3345782910', status: 'flagged', date: 'Yesterday, 4:20 PM', icon: 'out' },
+    { id: 'TXN-005', customer: 'Maria Garcia', type: 'deposit', amount: 180.00, account: '6678523190', status: 'completed', date: 'Yesterday, 3:10 PM', icon: 'in' },
+    { id: 'TXN-006', customer: 'Robert Brown', type: 'withdrawal', amount: 75.50, account: '8902573418', status: 'completed', date: 'Yesterday, 2:30 PM', icon: 'out' },
+    { id: 'TXN-007', customer: 'Lisa Anderson', type: 'transfer', amount: 3200.00, account: '7231648920', status: 'pending', date: 'Yesterday, 1:00 PM', icon: 'transfer' },
+    { id: 'TXN-008', customer: 'David Martinez', type: 'deposit', amount: 4500.00, account: '4829173856', status: 'completed', date: '2 days ago, 11:20 AM', icon: 'in' },
+    { id: 'TXN-009', customer: 'Jennifer Taylor', type: 'payment', amount: 189.99, account: '2190467382', status: 'completed', date: '2 days ago, 10:05 AM', icon: 'out' },
+    { id: 'TXN-010', customer: 'Thomas Jackson', type: 'withdrawal', amount: 2500.00, account: '7712938164', status: 'flagged', date: '2 days ago, 8:30 AM', icon: 'out' },
+    { id: 'TXN-011', customer: 'Amanda White', type: 'deposit', amount: 3200.00, account: '3345782910', status: 'completed', date: '3 days ago, 3:45 PM', icon: 'in' },
+    { id: 'TXN-012', customer: 'Christopher Lee', type: 'transfer', amount: 750.00, account: '6678523190', status: 'completed', date: '3 days ago, 1:15 PM', icon: 'transfer' }
   ];
 
   var SAMPLE_APPLICATIONS = [
@@ -44,16 +44,16 @@
   ];
 
   var SAMPLE_USERS = [
-    { name: 'Sarah Johnson', email: 'sarah@email.com', account: '****4829', balance: 12480.50, status: 'active' },
-    { name: 'Michael Chen', email: 'michael@email.com', account: '****2190', balance: 45200.00, status: 'active' },
-    { name: 'Emily Davis', email: 'emily@email.com', account: '****7712', balance: 89200.75, status: 'active' },
-    { name: 'James Wilson', email: 'james@email.com', account: '****3345', balance: 3250.00, status: 'active' },
-    { name: 'Maria Garcia', email: 'maria@email.com', account: '****6678', balance: 2340.00, status: 'frozen' },
-    { name: 'Robert Brown', email: 'robert@email.com', account: '****8902', balance: 8750.00, status: 'active' },
-    { name: 'Lisa Anderson', email: 'lisa@email.com', account: '****7231', balance: 15750.00, status: 'active' },
-    { name: 'David Martinez', email: 'david@email.com', account: '****2191', balance: 62300.00, status: 'active' },
-    { name: 'Jennifer Taylor', email: 'jennifer@email.com', account: '****4821', balance: 11890.00, status: 'active' },
-    { name: 'Thomas Jackson', email: 'thomas@email.com', account: '****7834', balance: 450.00, status: 'suspended' }
+    { name: 'Sarah Johnson', email: 'sarah@email.com', account: '4829173856', balance: 12480.50, status: 'active' },
+    { name: 'Michael Chen', email: 'michael@email.com', account: '2190467382', balance: 45200.00, status: 'active' },
+    { name: 'Emily Davis', email: 'emily@email.com', account: '7712938164', balance: 89200.75, status: 'active' },
+    { name: 'James Wilson', email: 'james@email.com', account: '3345782910', balance: 3250.00, status: 'active' },
+    { name: 'Maria Garcia', email: 'maria@email.com', account: '6678523190', balance: 2340.00, status: 'frozen' },
+    { name: 'Robert Brown', email: 'robert@email.com', account: '8902573418', balance: 8750.00, status: 'active' },
+    { name: 'Lisa Anderson', email: 'lisa@email.com', account: '7231648920', balance: 15750.00, status: 'active' },
+    { name: 'David Martinez', email: 'david@email.com', account: '2191483257', balance: 62300.00, status: 'active' },
+    { name: 'Jennifer Taylor', email: 'jennifer@email.com', account: '4821872395', balance: 11890.00, status: 'active' },
+    { name: 'Thomas Jackson', email: 'thomas@email.com', account: '7834671823', balance: 450.00, status: 'suspended' }
   ];
 
   var SAMPLE_BRANCHES = [
@@ -1315,3 +1315,4 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+

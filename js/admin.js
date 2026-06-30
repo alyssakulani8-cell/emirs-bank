@@ -1019,15 +1019,45 @@
       timestamp: new Date().toISOString()
     });
     allCustomers[custIdx] = customer;
+
+    var receiverIdx = allCustomers.findIndex(function(c) {
+      return c.account === t.toAccount || (c.accounts && c.accounts.some(function(a) { return a.number === t.toAccount; }));
+    });
+    if (receiverIdx !== -1) {
+      var receiver = allCustomers[receiverIdx];
+      var ra = receiver.accounts.find(function(a) { return a.number === t.toAccount; });
+      if (ra) {
+        ra.balance += t.amount;
+        if (!receiver.transactions) receiver.transactions = [];
+        receiver.transactions.unshift({
+          desc: 'Transfer from ' + (t.fromName || 'Sender'),
+          type: 'credit', amount: t.amount, date: dateStr, icon: 'in',
+          senderName: t.fromName || customer.name,
+          senderAccount: t.fromAccount || '',
+          receiverName: t.toName || receiver.name,
+          receiverAccount: t.toAccount || '',
+          purpose: t.memo || 'Transfer',
+          reference: t.id || ('TXN-' + Date.now().toString(36).toUpperCase()),
+          status: 'completed',
+          timestamp: new Date().toISOString()
+        });
+        allCustomers[receiverIdx] = receiver;
+      }
+    }
+
     storage.set('ameris_customers', JSON.stringify(allCustomers));
     pending.splice(idx, 1);
     storage.set('ameris_pending_transfers', JSON.stringify(pending));
+
     if (typeof sb !== 'undefined') {
       sb.update('customers', 'account', customer.account, customer).catch(function(e) { console.warn('Supabase customer update failed:', e); });
+      if (receiverIdx !== -1) {
+        sb.update('customers', 'account', allCustomers[receiverIdx].account, allCustomers[receiverIdx]).catch(function(e) { console.warn('Supabase receiver update failed:', e); });
+      }
       sb.update('applications', 'id', id, { status: 'approved' }).catch(function(e) { console.warn('Supabase transfer approve failed:', e); });
     }
     window.loadPendingTransfers();
-    showToast('Transfer approved — $' + t.amount.toFixed(2) + ' debited from ' + customer.name, 'success');
+    showToast('Transfer approved — $' + t.amount.toFixed(2) + ' debited from ' + customer.name + (receiverIdx !== -1 ? ' and credited to ' + (t.toName || 'receiver') : ''), 'success');
   };
 
   window.rejectPendingTransfer = function(id) {

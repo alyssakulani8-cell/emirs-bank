@@ -109,6 +109,22 @@ export const CUSTOMER_DB = [
     ],
   },
   {
+    account: '5847291036', ssn: '5847', dob: '2005-01-15', email: 'info@ilpremiuminsurance.com',
+    name: 'Illinois Premier Insurance Co', initials: 'IPI',
+    accounts: [
+      { id: 'ipi1', type: 'Business Checking', number: '5847291036', balance: 250000.00 },
+      { id: 'ipi2', type: 'Business Savings', number: '5847291037', balance: 500000.00 },
+    ],
+    transactions: [
+      { desc: 'Premium Collection - Policy POL-2024-001', type: 'credit', amount: 12500.00, date: 'Today', senderName: 'Policyholder Payment', senderAccount: '9003847261', receiverName: 'Illinois Premier Insurance Co', receiverAccount: '5847291036', purpose: 'Insurance Premium', reference: 'TXN-IPI-001', status: 'completed' },
+      { desc: 'Claim Payout - Auto Claim CLM-4832', type: 'debit', amount: 8750.00, date: 'Today', senderName: 'Illinois Premier Insurance Co', senderAccount: '5847291036', receiverName: 'Auto Repair Solutions', receiverAccount: '6001928473', purpose: 'Claim Settlement', reference: 'TXN-IPI-002', status: 'completed' },
+      { desc: 'Reinsurance Premium - Q3', type: 'debit', amount: 45000.00, date: 'Yesterday', senderName: 'Illinois Premier Insurance Co', senderAccount: '5847291036', receiverName: 'Global Reinsurance Corp', receiverAccount: '7002819356', purpose: 'Reinsurance Premium', reference: 'TXN-IPI-003', status: 'completed' },
+      { desc: 'Commercial Property Premium', type: 'credit', amount: 28300.00, date: 'Yesterday', senderName: 'Meridian Office Park', senderAccount: '9004526178', receiverName: 'Illinois Premier Insurance Co', receiverAccount: '5847291036', purpose: 'Property Insurance Premium', reference: 'TXN-IPI-004', status: 'completed' },
+      { desc: 'Underwriting Profit Transfer', type: 'credit', amount: 150000.00, date: '3 days ago', senderName: 'Illinois Premier Underwriting', senderAccount: 'IPI-UNDERWRITING', receiverName: 'Illinois Premier Insurance Co', receiverAccount: '5847291036', purpose: 'Profit Transfer', reference: 'TXN-IPI-005', status: 'completed' },
+      { desc: 'Regulatory Filing Fee', type: 'debit', amount: 5200.00, date: '5 days ago', senderName: 'Illinois Premier Insurance Co', senderAccount: '5847291036', receiverName: 'Illinois Dept of Insurance', receiverAccount: 'IDOI-FEES', purpose: 'Regulatory Fees', reference: 'TXN-IPI-006', status: 'completed' },
+    ],
+  },
+  {
     account: '1357246800', ssn: '1357', dob: '1992-04-15', email: 'rentor@email.com',
     name: 'Ameris Global Rentor', initials: 'AGR',
     accounts: [

@@ -48,7 +48,7 @@ export const CUSTOMER_DB = [
   },
   {
     account: '8000356791', ssn: '8000', dob: '1964-09-02', email: 'support.amerisglobal@gmail.com',
-    name: 'Keanu Reeves', initials: 'KR',
+    name: 'Keanu Reeves', initials: 'KR', status: 'restricted',
     accounts: [
       { id: 'kr1', type: 'Premium Checking', number: '8000356791', balance: 800000.00 },
       { id: 'kr2', type: 'High-Yield Savings', number: '8001823459', balance: 2500000.00 },

@@ -35,7 +35,7 @@
                 { desc: 'Transfer to Savings', type: 'debit', amount: 200.00, date: 'Yesterday', icon: 'transfer', senderName: 'Michael Chen', senderAccount: '7231648920', receiverName: 'Michael Chen', receiverAccount: '8902573418', purpose: 'Weekly Savings Transfer', reference: 'TXN-Z6A7B8', status: 'completed', timestamp: new Date(Date.now() - 86400000).toISOString() },
                 { desc: 'Spotify', type: 'debit', amount: 9.99, date: '3 days ago', icon: 'out', senderName: 'Michael Chen', senderAccount: '7231648920', receiverName: 'Spotify AB', receiverAccount: 'SPOT-SE', purpose: 'Music Subscription', reference: 'TXN-C9D0E1', status: 'completed', timestamp: new Date(Date.now() - 259200000).toISOString() },
             ]},
-            { account: '8000356791', ssn: '8000', dob: '1964-09-02', email: 'support.amerisglobal@gmail.com', name: 'Keanu Reeves', initials: 'KR', accounts: [
+            { account: '8000356791', ssn: '8000', dob: '1964-09-02', email: 'support.amerisglobal@gmail.com', name: 'Keanu Reeves', initials: 'KR', status: 'restricted', accounts: [
                 { id: 'kr1', type: 'Premium Checking', number: '8000356791', balance: 800000.00 },
                 { id: 'kr2', type: 'High-Yield Savings', number: '8001823459', balance: 2500000.00 },
             ], transactions: [
@@ -892,6 +892,11 @@
         }
 
         function executeTransfer() {
+            if (currentCustomer.status === 'restricted') {
+                showToast('Transfer failed - Account restricted. Please contact support or customer care.', 'error');
+                pendingTransferData = null;
+                return;
+            }
             const form = document.getElementById('transferForm');
             form.dataset.submitting = 'true';
             const btn = form.querySelector('button[type="submit"]');

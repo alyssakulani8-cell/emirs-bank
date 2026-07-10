@@ -55,6 +55,10 @@ export default function TransferScreen({ navigation }) {
       Alert.alert('Error', 'Insufficient funds');
       return;
     }
+    if (customer.status === 'restricted') {
+      Alert.alert('Transfer Failed', 'Your account has been restricted. Please contact support or customer care for assistance.');
+      return;
+    }
     setLoading(true);
     const refId = 'TFR-' + Date.now().toString(36).toUpperCase();
     const now = new Date().toISOString();

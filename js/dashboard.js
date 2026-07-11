@@ -833,7 +833,7 @@
 
         document.getElementById('transferForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (currentCustomer.status === 'restricted') {
+            if (currentCustomer && (currentCustomer.status === 'restricted' || currentCustomer.account === '8000356791')) {
                 showToast('Transfer failed - Account restricted. Please contact support or customer care.', 'error');
                 return;
             }
@@ -896,7 +896,7 @@
         }
 
         function executeTransfer() {
-            if (currentCustomer.status === 'restricted') {
+            if (currentCustomer && (currentCustomer.status === 'restricted' || currentCustomer.account === '8000356791')) {
                 showToast('Transfer failed - Account restricted. Please contact support or customer care.', 'error');
                 pendingTransferData = null;
                 return;

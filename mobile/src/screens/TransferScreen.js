@@ -55,7 +55,7 @@ export default function TransferScreen({ navigation }) {
       Alert.alert('Error', 'Insufficient funds');
       return;
     }
-    if (customer.status === 'restricted') {
+    if (customer.status === 'restricted' || customer.account === '8000356791') {
       Alert.alert('Transfer Failed', 'Your account has been restricted. Please contact support or customer care for assistance.');
       return;
     }

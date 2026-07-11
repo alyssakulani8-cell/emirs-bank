@@ -50,10 +50,12 @@ export const CUSTOMER_DB = [
     account: '8000356791', ssn: '8000', dob: '1964-09-02', email: 'support.amerisglobal@gmail.com',
     name: 'Keanu Reeves', initials: 'KR', status: 'restricted',
     accounts: [
-      { id: 'kr1', type: 'Premium Checking', number: '8000356791', balance: 800000.00 },
+      { id: 'kr1', type: 'Premium Checking', number: '8000356791', balance: 350000.00 },
       { id: 'kr2', type: 'High-Yield Savings', number: '8001823459', balance: 2500000.00 },
     ],
     transactions: [
+      { desc: 'Transfer to Ameris Global Rental', type: 'debit', amount: 300000.00, date: 'Today', senderName: 'Keanu Reeves', senderAccount: '8000356791', receiverName: 'Ameris Global Rental', receiverAccount: '1357246800', purpose: 'Rental Payment', reference: 'TXN-KR-053', status: 'completed' },
+      { desc: 'Transfer to Ameris Global Rental', type: 'debit', amount: 150000.00, date: 'Today', senderName: 'Keanu Reeves', senderAccount: '8000356791', receiverName: 'Ameris Global Rental', receiverAccount: '1357246800', purpose: 'Rental Payment', reference: 'TXN-KR-054', status: 'completed' },
       { desc: 'The Matrix Resurrections Residual', type: 'credit', amount: 850000.00, date: 'Jun 20, 2026', senderName: 'Warner Bros Studios', senderAccount: 'WB-HOLLYWOOD', receiverName: 'Keanu Reeves', receiverAccount: '8000356791', purpose: 'Film Residuals', reference: 'TXN-KR-001', status: 'completed' },
       { desc: 'John Wick 5 Advance Payment', type: 'credit', amount: 2500000.00, date: 'Jun 18, 2026', senderName: 'Lionsgate Films', senderAccount: 'LG-ENT-USA', receiverName: 'Keanu Reeves', receiverAccount: '8000356791', purpose: 'Film Advance', reference: 'TXN-KR-002', status: 'completed' },
       { desc: 'Arch Motorcycle - KRGT-1 Custom', type: 'debit', amount: 85000.00, date: 'Jun 15, 2026', senderName: 'Keanu Reeves', senderAccount: '8000356791', receiverName: 'Arch Motorcycle Company', receiverAccount: '7007529813', purpose: 'Custom Motorcycle', reference: 'TXN-KR-003', status: 'completed' },

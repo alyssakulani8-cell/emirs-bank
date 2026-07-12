@@ -11,6 +11,7 @@ export async function onRequest(context) {
   }
 
   const response = await context.next();
+  const contentType = response.headers.get('content-type') || '';
 
   const headers = new Headers(response.headers);
   headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
@@ -18,6 +19,12 @@ export async function onRequest(context) {
   headers.set('X-Frame-Options', 'DENY');
   headers.set('X-XSS-Protection', '1; mode=block');
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  if (contentType.includes('javascript') || contentType.includes('x-javascript')) {
+    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    headers.set('Pragma', 'no-cache');
+    headers.set('Expires', '0');
+  }
 
   return new Response(response.body, {
     status: response.status,

@@ -378,6 +378,7 @@
             syncBeneficiaries(function() { renderBeneficiaries(); });
             syncRecurringBills();
             syncRecurringTransfers(function() { renderRecurring(); });
+            syncPendingTransfers();
             renderInsights();
             renderCards();
             renderRecurring();
@@ -532,6 +533,24 @@
                 storage.set('ameris_recurring_' + currentUsername, JSON.stringify(local));
                 if (callback) callback();
             }).catch(function() { if (callback) callback(); });
+        }
+
+        function syncPendingTransfers() {
+            if (typeof sb === 'undefined') return;
+            var local = JSON.parse(storage.get('ameris_pending_transfers') || '[]');
+            if (!local.length) return;
+            sb.list('applications').then(function(records) {
+                var approved = {};
+                records.forEach(function(r) {
+                    if (r.type === 'pending_transfer' && r.status !== 'pending') approved[r.id] = true;
+                });
+                var updated = local.filter(function(t) { return !approved[t.id]; });
+                if (updated.length !== local.length) {
+                    storage.set('ameris_pending_transfers', JSON.stringify(updated));
+                }
+                renderRecentTxns();
+                renderFullTxns();
+            }).catch(function() {});
         }
 
         function renderBeneficiaries() {
